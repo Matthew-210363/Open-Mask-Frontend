@@ -1,0 +1,40 @@
+buildscript {
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        google() // Hiermit wird das Google-Repository verwendet
+        mavenCentral() // Maven Central Repository
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.0' // Gradle Plugin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.15' // Google Services Plugin
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == "org.jetbrains.kotlin") {
+                details.useVersion "$kotlin_version"
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
