@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_mask/services/snackbar_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:open_mask/data/services/snackbar_service.dart';
 
-import '../pages/login_page.dart';
+import '../screens/login_page.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
@@ -34,7 +34,6 @@ class LogoutButton extends StatelessWidget {
   }
 
   void _logout(BuildContext context) async {
-
     await FirebaseAuth.instance.signOut();
     SnackBarService.showMessage("Erfolgreich ausgeloggt");
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_mask/widgets/navigation_bar.dart';
+import 'package:open_mask/ui/widgets/navigation_bar.dart';
 
 class FilterWorkshopPage extends StatelessWidget {
   static const routePath = "/filter-workshop";

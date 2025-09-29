@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_mask/services/snackbar_service.dart';
-import 'package:open_mask/widgets/form_header_text.dart';
+import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:open_mask/ui/widgets/form_header_text.dart';
 
 class AccountService {
   static Future<void> editName(BuildContext context) async {
@@ -18,7 +17,8 @@ class AccountService {
 
     String userId = user.uid;
 
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("User").doc(userId).get();
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection("User").doc(userId).get();
 
     if (!userDoc.exists) {
       SnackBarService.showMessage("Benutzerdaten nicht gefunden!");
@@ -26,7 +26,8 @@ class AccountService {
     }
 
     String currentName = userDoc["name"] ?? "";
-    TextEditingController nameController = TextEditingController(text: currentName);
+    TextEditingController nameController =
+        TextEditingController(text: currentName);
 
     showDialog(
       context: context,
@@ -50,7 +51,8 @@ class AccountService {
             ElevatedButton(
               onPressed: () async {
                 String newName = nameController.text.trim();
-                await FirebaseFirestore.instance.collection("User")
+                await FirebaseFirestore.instance
+                    .collection("User")
                     .doc(userId)
                     .update({
                   "name": newName,
@@ -76,7 +78,7 @@ class AccountService {
     String userId = user.uid;
 
     DocumentSnapshot userDoc =
-    await FirebaseFirestore.instance.collection("User").doc(userId).get();
+        await FirebaseFirestore.instance.collection("User").doc(userId).get();
 
     if (!userDoc.exists) {
       SnackBarService.showMessage("Benutzerdaten nicht gefunden!");
@@ -84,8 +86,8 @@ class AccountService {
     }
 
     String currentUsername = userDoc["username"] ?? "";
-    TextEditingController usernameController = TextEditingController(
-        text: currentUsername);
+    TextEditingController usernameController =
+        TextEditingController(text: currentUsername);
 
     showDialog(
       context: context,
@@ -97,8 +99,8 @@ class AccountService {
             children: [
               TextField(
                 controller: usernameController,
-                decoration: InputDecoration(
-                    labelText: "Neuen Benutzernamen eingeben"),
+                decoration:
+                    InputDecoration(labelText: "Neuen Benutzernamen eingeben"),
               ),
             ],
           ),
@@ -110,14 +112,16 @@ class AccountService {
             ElevatedButton(
               onPressed: () async {
                 String newUsername = usernameController.text.trim();
-                await FirebaseFirestore.instance.collection("User")
+                await FirebaseFirestore.instance
+                    .collection("User")
                     .doc(userId)
                     .update({
                   "username": newUsername,
                 });
-                SnackBarService.showMessage("Benutzernamen erfolgreich aktualisiert!");
+                SnackBarService.showMessage(
+                    "Benutzernamen erfolgreich aktualisiert!");
                 context.pop();
-                },
+              },
               child: Text("Speichern"),
             ),
           ],
@@ -138,47 +142,47 @@ class AccountService {
 
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: Text("E-Mail-Adresse ändern"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(labelText: "Neue E-Mail-Adresse"),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: Text("E-Mail-Adresse ändern"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(labelText: "Neue E-Mail-Adresse"),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => context.pop(),
-                child: Text("Abbrechen"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  String newEmail = emailController.text.trim();
-                  if (newEmail.isNotEmpty) {
-                    try {
-                      await user.verifyBeforeUpdateEmail(newEmail);
-                      await FirebaseFirestore.instance.collection("User")
-                          .doc(userId)
-                          .update({
-                        "email": newEmail,
-                      });
-
-                      context.pop();
-                      SnackBarService.showMessage("Bestätigungs-E-Mail gesendet!");
-                    } catch (e) {
-                      SnackBarService.showMessage("Fehler: ${e.toString()}");
-                    }
-                  }
-                },
-                child: Text("E-Mail ändern"),
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: Text("Abbrechen"),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              String newEmail = emailController.text.trim();
+              if (newEmail.isNotEmpty) {
+                try {
+                  await user.verifyBeforeUpdateEmail(newEmail);
+                  await FirebaseFirestore.instance
+                      .collection("User")
+                      .doc(userId)
+                      .update({
+                    "email": newEmail,
+                  });
+
+                  context.pop();
+                  SnackBarService.showMessage("Bestätigungs-E-Mail gesendet!");
+                } catch (e) {
+                  SnackBarService.showMessage("Fehler: ${e.toString()}");
+                }
+              }
+            },
+            child: Text("E-Mail ändern"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -217,14 +221,19 @@ class AccountService {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                FormHeaderText("Bitte geben Sie ihre E-Mail-Adresse ein, um ihr Passwort zurückzusetzen."),
+                FormHeaderText(
+                    "Bitte geben Sie ihre E-Mail-Adresse ein, um ihr Passwort zurückzusetzen."),
                 const SizedBox(height: 5),
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(labelText: "E-Mail-Adresse"),
                   validator: (value) {
-                    return (value == null || value.isEmpty || !value.contains('@')) ? 'Bitte gültige E-Mail eingeben' : null;
+                    return (value == null ||
+                            value.isEmpty ||
+                            !value.contains('@'))
+                        ? 'Bitte gültige E-Mail eingeben'
+                        : null;
                     // TODO: löschen (man sollte nicht angemeldet sein müssen)
                     // return (value != user.email) ? "Stimmt nicht mit der Benutzer-E-Mail überein!" : null;
                   },
@@ -280,7 +289,8 @@ class AccountService {
                 // TODO: löschen
                 // await FirebaseAuth.instance.sendPasswordResetEmail(email: user.email!);
                 String email = emailController.text.trim();
-                await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+                await FirebaseAuth.instance
+                    .sendPasswordResetEmail(email: email);
                 SnackBarService.showMessage("Passwort-Reset-Link gesendet!");
                 //resetLinkSent = true;
                 context.pop();
@@ -407,7 +417,8 @@ class AccountService {
           context: context,
           builder: (ctx) => AlertDialog(
             title: Text("Account Löschen bestätigen"),
-            content: Text("Sind sie sich sicher das sie ihr Konto löschen möchten? Diese Aktion kann nicht rünkgängig gemacht werden."),
+            content: Text(
+                "Sind sie sich sicher das sie ihr Konto löschen möchten? Diese Aktion kann nicht rünkgängig gemacht werden."),
             actions: [
               TextButton(
                 onPressed: () => ctx.pop(false),
@@ -424,11 +435,11 @@ class AccountService {
         if (shouldDelete == true) {
           await user.delete();
         }
-
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
-        print('The user must reauthenticate before this operation can be executed.');
+        print(
+            'The user must reauthenticate before this operation can be executed.');
       } else {
         print('Error: ${e.message}');
       }

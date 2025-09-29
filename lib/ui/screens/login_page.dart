@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_mask/pages/register_page.dart';
-import 'package:open_mask/services/account_service.dart';
-import 'package:open_mask/services/snackbar_service.dart';
+import 'package:open_mask/data/services/account_service.dart';
+import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:open_mask/ui/screens/register_page.dart';
 
 import '../widgets/stretched_button.dart';
 import 'camera_page.dart';
-import '../widgets/password_reset_popup.dart';
 
 class LoginPage extends StatefulWidget {
   static const routePath = "/login";
@@ -19,7 +18,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -39,7 +37,8 @@ class _LoginPageState extends State<LoginPage> {
         SnackBarService.showMessage('Bitte E-Mail und Passwort angeben!');
       }
 
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -51,7 +50,8 @@ class _LoginPageState extends State<LoginPage> {
 
         await FirebaseAuth.instance.signOut();
 
-        SnackBarService.showMessage('E-Mail wurde noch nicht verifiziert! \nBitte überprüfen Sie ihren Posteingang!');
+        SnackBarService.showMessage(
+            'E-Mail wurde noch nicht verifiziert! \nBitte überprüfen Sie ihren Posteingang!');
         return;
       }
 
@@ -83,10 +83,7 @@ class _LoginPageState extends State<LoginPage> {
             // Willkommen-Text
             const Text(
               'Willkommen!',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold
-              ),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             // Eingabefelder
@@ -99,14 +96,27 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     // Email-Adresse
                     const SizedBox(height: 3),
-                    TextFormField(controller: _emailController, decoration: InputDecoration(hintText: 'E-Mail-Adresse'), validator: (value) {
-                      return (value == null || value.isEmpty || !value.contains('@')) ? 'Bitte gültige E-Mail eingeben' : null;
-                    }),
+                    TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(hintText: 'E-Mail-Adresse'),
+                        validator: (value) {
+                          return (value == null ||
+                                  value.isEmpty ||
+                                  !value.contains('@'))
+                              ? 'Bitte gültige E-Mail eingeben'
+                              : null;
+                        }),
                     const SizedBox(height: 20),
                     // Passwort
-                    TextFormField(controller: _passwordController, decoration: InputDecoration(hintText: 'Passwort'), validator: (value) {
-                      return (value == null || value.isEmpty) ? 'Bitte Passwort eingeben' : null;
-                    }, obscureText: true),
+                    TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(hintText: 'Passwort'),
+                        validator: (value) {
+                          return (value == null || value.isEmpty)
+                              ? 'Bitte Passwort eingeben'
+                              : null;
+                        },
+                        obscureText: true),
                     const SizedBox(height: 10),
                     // Passwort vergessen
                     GestureDetector(
@@ -130,11 +140,14 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             // Registrieren-Link
             TextButton(
-                child: Text('Noch kein Konto? Jetzt registrieren', style: TextStyle(color: Colors.blue),),
+                child: Text(
+                  'Noch kein Konto? Jetzt registrieren',
+                  style: TextStyle(color: Colors.blue),
+                ),
                 onPressed: () {
                   // Registrierungsseite öffnen
                   context.push(RegisterPage.routePath);
-            }),
+                }),
             const SizedBox(height: 30),
             // Social Media Buttons (ohne Funktionalität)
             /* TODO: Anbieter einrichten und Logik implementieren

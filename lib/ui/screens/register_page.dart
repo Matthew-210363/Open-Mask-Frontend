@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../services/snackbar_service.dart';
+import '../../data/services/snackbar_service.dart';
 import '../widgets/form_header_text.dart';
 import '../widgets/stretched_button.dart';
 
@@ -23,7 +23,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
 
   bool _isTermsAccepted = false;
@@ -50,7 +51,8 @@ class _RegisterPageState extends State<RegisterPage> {
       String name = _nameController.text.trim();
 
       // Firebase Authentication - Registrierung
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -59,7 +61,10 @@ class _RegisterPageState extends State<RegisterPage> {
       await userCredential.user?.sendEmailVerification();
 
       // Zusätzliche Daten in Firestore speichern
-      await FirebaseFirestore.instance.collection('User').doc(userCredential.user!.uid).set({
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(userCredential.user!.uid)
+          .set({
         'name': name,
         'username': username,
         'email': email,
@@ -70,7 +75,8 @@ class _RegisterPageState extends State<RegisterPage> {
       await FirebaseAuth.instance.signOut();
 
       // Bestätigung und Anforderung zur verifizierung anzeigen
-      SnackBarService.showMessage('Registrierung erfolgreich! \nBitte überprüfen Sie Ihr Postfach, um Ihre E-Mail zu verifizieren!');
+      SnackBarService.showMessage(
+          'Registrierung erfolgreich! \nBitte überprüfen Sie Ihr Postfach, um Ihre E-Mail zu verifizieren!');
 
       context.pop();
     } catch (e) {
@@ -108,37 +114,68 @@ class _RegisterPageState extends State<RegisterPage> {
                     // Name
                     FormHeaderText('Name'),
                     const SizedBox(height: 3),
-                    TextFormField(controller: _nameController, decoration: InputDecoration(hintText: 'Name'), validator: (value) {
-                      return (value == null || value.isEmpty) ? 'Bitte Name eingeben' : null;
-                    }),
+                    TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(hintText: 'Name'),
+                        validator: (value) {
+                          return (value == null || value.isEmpty)
+                              ? 'Bitte Name eingeben'
+                              : null;
+                        }),
                     const SizedBox(height: 10),
                     // Benutzername
                     FormHeaderText('Benutzername'),
                     SizedBox(height: 3),
-                    TextFormField(controller: _usernameController, decoration: InputDecoration(hintText: 'Benutzername'), validator: (value) {
-                      return (value == null || value.isEmpty) ? 'Bitte Benutzernamen eingeben' : null;
-                    }),
+                    TextFormField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(hintText: 'Benutzername'),
+                        validator: (value) {
+                          return (value == null || value.isEmpty)
+                              ? 'Bitte Benutzernamen eingeben'
+                              : null;
+                        }),
                     const SizedBox(height: 10),
                     // Email-Adresse
                     FormHeaderText('Email-Adresse'),
                     const SizedBox(height: 3),
-                    TextFormField(controller: _emailController, decoration: InputDecoration(hintText: 'E-Mail-Adresse'), validator: (value) {
-                      return (value == null || value.isEmpty || !value.contains('@')) ? 'Bitte gültige E-Mail eingeben' : null;
-                    }),
+                    TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(hintText: 'E-Mail-Adresse'),
+                        validator: (value) {
+                          return (value == null ||
+                                  value.isEmpty ||
+                                  !value.contains('@'))
+                              ? 'Bitte gültige E-Mail eingeben'
+                              : null;
+                        }),
                     const SizedBox(height: 10),
                     // Passwort
                     FormHeaderText('Passwort'),
                     SizedBox(height: 3),
-                    TextFormField(controller: _passwordController, decoration: InputDecoration(hintText: 'Passwort'), validator: (value) {
-                      return (value == null || value.length < 6) ? 'Passwort muss mindestens 6 Zeichen haben' : null;
-                    }, obscureText: true),
+                    TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(hintText: 'Passwort'),
+                        validator: (value) {
+                          return (value == null || value.length < 6)
+                              ? 'Passwort muss mindestens 6 Zeichen haben'
+                              : null;
+                        },
+                        obscureText: true),
                     const SizedBox(height: 10),
                     // Passwort bestätigen
                     FormHeaderText('Passwort bestätigen'),
                     const SizedBox(height: 3),
-                    TextFormField(controller: _confirmPasswordController, decoration: InputDecoration(hintText: 'Passwort bestätigen'), validator: (value) {
-                      return (value!.trim() != _passwordController.text.trim()) ? 'Passwörter stimmen nicht überein' : null;
-                    }, obscureText: true),
+                    TextFormField(
+                        controller: _confirmPasswordController,
+                        decoration:
+                            InputDecoration(hintText: 'Passwort bestätigen'),
+                        validator: (value) {
+                          return (value!.trim() !=
+                                  _passwordController.text.trim())
+                              ? 'Passwörter stimmen nicht überein'
+                              : null;
+                        },
+                        obscureText: true),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -163,7 +200,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
-
             _isLoading
                 ? Center(child: CircularProgressIndicator())
                 : StretchedButton('Registrieren', _registerUser, 0.9),
