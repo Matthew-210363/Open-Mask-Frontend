@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 
-import '../screens/login_page.dart';
+import '../screens/login_screen.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
@@ -38,7 +38,7 @@ class LogoutButton extends StatelessWidget {
     SnackBarService.showMessage("Erfolgreich ausgeloggt");
 
     // Zum Login-Screen navigieren
-    context.pushReplacement(LoginPage.routePath);
+    context.pushReplacement(LoginScreen.routePath);
   }
 
   @override

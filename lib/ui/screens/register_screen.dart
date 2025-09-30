@@ -7,16 +7,16 @@ import '../../data/services/snackbar_service.dart';
 import '../widgets/form_header_text.dart';
 import '../widgets/stretched_button.dart';
 
-class RegisterPage extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   static const routePath = "/register";
 
-  const RegisterPage({super.key});
+  const RegisterScreen({super.key});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controller für die Eingabefelder

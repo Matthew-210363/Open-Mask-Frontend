@@ -6,13 +6,13 @@ import 'package:open_mask/ui/widgets/navigation_bar.dart';
 
 import '../../data/services/auth_service.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsScreen extends StatefulWidget {
   static const routePath = "/settings";
 
-  const SettingsPage({super.key});
+  const SettingsScreen({super.key});
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  _SettingsScreenState createState() => _SettingsScreenState();
 }
 
 File? _profileImage;
@@ -24,7 +24,7 @@ Future<void> _changeProfilePicture() async {
   }
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          CustomNavigationBar(currentRoute: SettingsPage.routePath)
+          CustomNavigationBar(currentRoute: SettingsScreen.routePath)
         ],
       ),
     );

@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
-import 'package:open_mask/ui/screens/register_page.dart';
+import 'package:open_mask/ui/screens/register_screen.dart';
 
 import '../widgets/stretched_button.dart';
-import 'camera_page.dart';
+import 'camera_screen.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   static const routePath = "/login";
 
-  const LoginPage({super.key});
+  const LoginScreen({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     SnackBarService.showMessage('Login erfolgreich!');
 
     // Home Screen öffnen
-    context.pushReplacement(CameraPage.routePath);
+    context.pushReplacement(CameraScreen.routePath);
   }
 
   @override
@@ -125,50 +125,11 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 onPressed: () {
                   // Registrierungsseite öffnen
-                  context.push(RegisterPage.routePath);
+                  context.push(RegisterScreen.routePath);
                 }),
             const SizedBox(height: 30),
-            // Social Media Buttons (ohne Funktionalität)
-            /* TODO: Anbieter einrichten und Logik implementieren
-            const Divider(
-              color: Colors.grey,
-              indent: 30,
-              endIndent: 30,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Oder fortfahren mit',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildSocialButton(Icons.g_mobiledata_rounded, Colors.red),
-                const SizedBox(width: 20),
-                _buildSocialButton(Icons.apple, Colors.white70),
-                const SizedBox(width: 20),
-                _buildSocialButton(Icons.facebook, Colors.blue),
-              ],
-            ),*/
           ],
         ),
-      ),
-    );
-  }
-
-  // TODO: fertig einrichten und Anbieter auswählen
-  Widget _buildSocialButton(IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: color),
-        onPressed: () {
-          // Social Media Login Logik
-        },
       ),
     );
   }

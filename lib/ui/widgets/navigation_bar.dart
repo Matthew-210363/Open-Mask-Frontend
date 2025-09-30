@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import "package:open_mask/ui/screens/camera_page.dart";
-import 'package:open_mask/ui/screens/filter_workshop_page.dart';
-import 'package:open_mask/ui/screens/settings_page.dart';
+import "package:open_mask/ui/screens/camera_screen.dart";
+import 'package:open_mask/ui/screens/filter_workshop_screen.dart';
+import 'package:open_mask/ui/screens/settings_screen.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final String currentRoute;
@@ -19,20 +19,20 @@ class CustomNavigationBar extends StatelessWidget {
         children: [
           IconButton(
               icon: const Icon(Icons.flash_on, color: Colors.white, size: 30),
-              onPressed: () => (currentRoute == FilterWorkshopPage.routePath)
+              onPressed: () => (currentRoute == FilterWorkshopScreen.routePath)
                   ? {}
-                  : context.pushReplacement(FilterWorkshopPage.routePath)),
+                  : context.pushReplacement(FilterWorkshopScreen.routePath)),
           IconButton(
               icon: const Icon(Icons.circle_outlined,
                   color: Colors.white, size: 50),
-              onPressed: () => (currentRoute == CameraPage.routePath)
+              onPressed: () => (currentRoute == CameraScreen.routePath)
                   ? {}
-                  : context.pushReplacement(CameraPage.routePath)),
+                  : context.pushReplacement(CameraScreen.routePath)),
           IconButton(
               icon: const Icon(Icons.settings, color: Colors.white, size: 30),
-              onPressed: () => (currentRoute == SettingsPage.routePath)
+              onPressed: () => (currentRoute == SettingsScreen.routePath)
                   ? {}
-                  : context.pushReplacement(SettingsPage.routePath)),
+                  : context.pushReplacement(SettingsScreen.routePath)),
         ],
       ),
     );

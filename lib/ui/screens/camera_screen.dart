@@ -13,21 +13,21 @@ import 'package:provider/provider.dart';
 
 import '../views/face_detector_view.dart';
 
-class CameraPage extends StatefulWidget {
+class CameraScreen extends StatefulWidget {
   static const routePath = "/camera";
 
   final bool showMarkings;
   final bool showLandmarks;
 
-  const CameraPage(
+  const CameraScreen(
       {this.showMarkings = true, this.showLandmarks = true, super.key});
 
   @override
-  _CameraPageState createState() => _CameraPageState(
+  _CameraScreenState createState() => _CameraScreenState(
       showMarkings: showMarkings, showLandmarks: showLandmarks);
 }
 
-class _CameraPageState extends State<CameraPage> {
+class _CameraScreenState extends State<CameraScreen> {
   final bool _showMarkings;
   final bool _showLandmarks;
   late FaceDetectionService _faceDetectionService;
@@ -37,7 +37,7 @@ class _CameraPageState extends State<CameraPage> {
   // TODO: Filter auswählen
   IFilter? _filter;
 
-  _CameraPageState({bool showMarkings = true, bool showLandmarks = true})
+  _CameraScreenState({bool showMarkings = true, bool showLandmarks = true})
       : _showLandmarks = showLandmarks,
         _showMarkings = showMarkings;
 
@@ -139,7 +139,7 @@ class _CameraPageState extends State<CameraPage> {
               ),
             ),
           ),
-          CustomNavigationBar(currentRoute: CameraPage.routePath),
+          CustomNavigationBar(currentRoute: CameraScreen.routePath),
         ],
       ),
     );
