@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 
 import '../../data/services/snackbar_service.dart';
 import '../widgets/form_header_text.dart';
@@ -39,53 +39,25 @@ class _RegisterPageState extends State<RegisterPage> {
       _isLoading = true;
     });
 
-    try {
-      String username = _usernameController.text.trim();
-      if (!await _isUsernameAvailable(username)) {
-        SnackBarService.showMessage('Benutzername vergeben!');
-        return;
-      }
-
-      String email = _emailController.text.trim();
-      String password = _passwordController.text.trim();
-      String name = _nameController.text.trim();
-
-      // Firebase Authentication - Registrierung
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // E-Mail-Verifizierungslink senden
-      await userCredential.user?.sendEmailVerification();
-
-      // Zusätzliche Daten in Firestore speichern
-      await FirebaseFirestore.instance
-          .collection('User')
-          .doc(userCredential.user!.uid)
-          .set({
-        'name': name,
-        'username': username,
-        'email': email,
-        'createdAt': Timestamp.now(),
-      });
-
-      // Benutzer abmelden, bis er verifiziert ist
-      await FirebaseAuth.instance.signOut();
-
-      // Bestätigung und Anforderung zur verifizierung anzeigen
-      SnackBarService.showMessage(
-          'Registrierung erfolgreich! \nBitte überprüfen Sie Ihr Postfach, um Ihre E-Mail zu verifizieren!');
-
-      context.pop();
-    } catch (e) {
-      SnackBarService.showMessage('Fehler: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+    String username = _usernameController.text.trim();
+    if (!await _isUsernameAvailable(username)) {
+      SnackBarService.showMessage('Benutzername vergeben!');
+      return;
     }
+
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+    String name = _nameController.text.trim();
+
+    bool authSuccessful =
+        await AuthService.register(email, password, username, name);
+    if (authSuccessful) {
+      context.pop();
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<bool> _isUsernameAvailable(String username) async {

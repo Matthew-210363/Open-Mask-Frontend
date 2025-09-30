@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:open_mask/ui/widgets/logout_button.dart';
 import 'package:open_mask/ui/widgets/navigation_bar.dart';
 
-import '../../data/services/account_service.dart';
+import '../../data/services/auth_service.dart';
 
 class SettingsPage extends StatefulWidget {
   static const routePath = "/settings";
@@ -18,7 +18,7 @@ class SettingsPage extends StatefulWidget {
 File? _profileImage;
 
 Future<void> _changeProfilePicture() async {
-  final image = await AccountService.changeProfilepicture();
+  final image = await AuthService.changeProfilepicture();
   if (image != null) {
     _profileImage = image;
   }
@@ -56,22 +56,22 @@ class _SettingsPageState extends State<SettingsPage> {
                         const SizedBox(height: 15),
                         _buildSettingButton(
                           'Benutzername ändern',
-                          () => AccountService.editUsername(context),
+                          () => AuthService.editUsername(context),
                         ),
                         const SizedBox(height: 15),
                         _buildSettingButton(
                           'Email zurücksetzen',
-                          () => AccountService.resetEmail(context),
+                          () => AuthService.resetEmail(context),
                         ),
                         const SizedBox(height: 15),
                         _buildSettingButton(
                           'Passwort zurücksetzen',
-                          () => AccountService.resetPassword(context),
+                          () => AuthService.resetPassword(context),
                         ),
                         const SizedBox(height: 15),
                         _buildSettingButton(
                           'Account löschen',
-                          () => AccountService.deleteAccount(context),
+                          () => AuthService.deleteAccount(context),
                         ),
                         const SizedBox(height: 25),
                         const LogoutButton(),

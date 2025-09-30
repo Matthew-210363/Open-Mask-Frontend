@@ -4,10 +4,61 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_mask/data/repositories/auth_repository.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/ui/widgets/form_header_text.dart';
 
-class AccountService {
+// TODO: Umstellen auf Java Backend
+class AuthService {
+  /// Meldet den Benutzer an und überprüft, ob die E-Mail verifiziert wurde. Liefert true zurück, wenn die Anmeldung erfolgreich war.
+  static Future<bool> login(String email, String password) async {
+    UserCredential userCredential;
+    try {
+      userCredential = await AuthRepository.signIn(email, password);
+    } catch (e) {
+      SnackBarService.showMessage('Error: ${e.toString()}');
+      return false;
+    }
+
+    // Überprüfen, ob die E-Mail schon verifiziert wurde
+    if (userCredential.user!.emailVerified) {
+      return true;
+    }
+    // Verifizierungs-E-Mail erneut senden
+    await AuthRepository.sendEmailVerification(userCredential);
+
+    await AuthRepository.signOut();
+
+    SnackBarService.showMessage(
+        'E-Mail wurde noch nicht verifiziert! \nBitte überprüfen Sie ihren Posteingang!');
+    return false;
+  }
+
+  /// Registriert den Benutzer
+  static Future<bool> register(
+      String email, String password, String username, String name) async {
+    try {
+      // Benutzer erstellen
+      UserCredential userCredential =
+          await AuthRepository.createUser(email, password, username, name);
+
+      // E-Mail-Verifizierungslink senden
+      await AuthRepository.sendEmailVerification(userCredential);
+
+      // Benutzer abmelden, bis er verifiziert ist
+      await AuthRepository.signOut();
+
+      // Bestätigung und Anforderung zur verifizierung anzeigen
+      SnackBarService.showMessage(
+          'Registrierung erfolgreich! \nBitte überprüfen Sie Ihr Postfach, um Ihre E-Mail zu verifizieren!');
+
+      return true;
+    } catch (e) {
+      SnackBarService.showMessage('Fehler: ${e.toString()}');
+      return false;
+    }
+  }
+
   static Future<void> editName(BuildContext context) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {

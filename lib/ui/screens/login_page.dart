@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_mask/data/services/account_service.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/ui/screens/register_page.dart';
 
@@ -28,40 +27,20 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    try {
-      String email = _emailController.text.trim();
-      String password = _passwordController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
-      // Überprüfung, ob E-Mail und Passwort ausgefüllt ist
-      if (email.isEmpty || password.isEmpty) {
-        SnackBarService.showMessage('Bitte E-Mail und Passwort angeben!');
-      }
-
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Überprüfen, ob die E-Mail schon verifiziert wurde
-      if (userCredential.user!.emailVerified == false) {
-        // Verifizierungs-E-Mail erneut senden
-        await userCredential.user!.sendEmailVerification();
-
-        await FirebaseAuth.instance.signOut();
-
-        SnackBarService.showMessage(
-            'E-Mail wurde noch nicht verifiziert! \nBitte überprüfen Sie ihren Posteingang!');
-        return;
-      }
-
-      SnackBarService.showMessage('Login erfolgreich!');
-
-      // Home Screen öffnen
-      context.pushReplacement(CameraPage.routePath);
-    } catch (e) {
-      SnackBarService.showMessage('Error: ${e.toString()}');
+    // Überprüfung, ob E-Mail und Passwort ausgefüllt ist
+    if (email.isEmpty || password.isEmpty) {
+      SnackBarService.showMessage('Bitte E-Mail und Passwort angeben!');
     }
+
+    AuthService.login(email, password);
+
+    SnackBarService.showMessage('Login erfolgreich!');
+
+    // Home Screen öffnen
+    context.pushReplacement(CameraPage.routePath);
   }
 
   @override
@@ -121,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                     // Passwort vergessen
                     GestureDetector(
                       onTap: () {
-                        AccountService.resetPassword(context);
+                        AuthService.resetPassword(context);
                       },
                       child: const Text(
                         'Passwort vergessen?',
@@ -191,19 +170,6 @@ class _LoginPageState extends State<LoginPage> {
           // Social Media Login Logik
         },
       ),
-    );
-  }
-}
-
-// TODO: in eigenem File andere Seiten erstellen.
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: const Center(child: Text('Willkommen!')),
     );
   }
 }
