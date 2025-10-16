@@ -7,10 +7,20 @@ import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/repositories/auth_repository.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/ui/widgets/form_header_text.dart';
+import 'package:http/http.dart' as http;
 
 // TODO: Umstellen auf Java Backend
 class AuthService {
   /// Meldet den Benutzer an und überprüft, ob die E-Mail verifiziert wurde. Liefert true zurück, wenn die Anmeldung erfolgreich war.
+
+  static Future<http.Response> logintest(String email, String password) async{
+
+      var url = Uri.https('openmask.fabianmild.dev', '/api/notauth/login');
+      var response = await http.get(url, headers: {"email" : email, "Password" : password});
+
+      return response;
+  }
+
   static Future<bool> login(String email, String password) async {
     UserCredential userCredential;
     try {
