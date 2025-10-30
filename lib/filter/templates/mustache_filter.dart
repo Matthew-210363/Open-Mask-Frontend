@@ -38,7 +38,7 @@ class MustacheFilter extends ImageFilter {
   static const String standardImagePath = 'assets/images/mustache.png';
 
   /// Standardmäßige relative Position unter der Nase.
-  static const Offset standardOffset = Offset(0.0, 20);
+  static const Offset standardOffset = Offset(0.0, 5);
 
   /// Standardmäßiger Scale.
   static const Scale standardScale = Scale(0.4, 0.4);
@@ -46,8 +46,6 @@ class MustacheFilter extends ImageFilter {
   @override
   void apply(final Face face, final Canvas canvas, final Size canvasSize,
       final Scale scale, final bool isFrontCamera) {
-    canvas.save();
-
     if (image == null) {
       if (!isLoading) {
         load();
@@ -67,10 +65,14 @@ class MustacheFilter extends ImageFilter {
         : noseBase.position.x.toDouble() * scale.scaleX;
     final double y = noseBase.position.y.toDouble() * scale.scaleY;
 
-    double offsetX = config.offset.dx;
-    double offsetY = config.offset.dy;
-    double filterWidth = face.boundingBox.width * config.scale.scaleX;
-    double filterHeight = face.boundingBox.height * config.scale.scaleY;
+    final faceWidth = face.boundingBox.width * scale.scaleX;
+    final faceHeight = face.boundingBox.height * scale.scaleY;
+
+    final offsetX = (config.offset.dx) / 100 * faceWidth;
+    final offsetY = (config.offset.dy) / 100 * faceHeight;
+
+    double filterWidth = faceWidth * config.scale.scaleX;
+    double filterHeight = faceHeight * config.scale.scaleY;
 
     final mustacheRect = Rect.fromCenter(
       center: Offset(x + offsetX, y + offsetY),
@@ -78,8 +80,22 @@ class MustacheFilter extends ImageFilter {
       height: filterHeight,
     );
 
-    canvas.rotate(config.rotation);
-    paintImage(canvas: canvas, rect: mustacheRect, image: image!);
+    canvas.save();
+
+    // Rotation berechnen und anwenden
+    final faceRotation = face.headEulerAngleX! * pi / 180;
+
+    final extraRotation = (config.rotation) * pi / 180;
+    final totalRotation = faceRotation + extraRotation;
+
+    //canvas.translate(mustacheRect.center.dx, mustacheRect.center.dy);
+    //canvas.rotate(totalRotation);
+
+    paintImage(
+        canvas: canvas,
+        rect: mustacheRect,
+        image: image!,
+        opacity: config.opacity);
 
     canvas.restore();
   }

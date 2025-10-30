@@ -8,6 +8,7 @@ import 'package:open_mask/filter/configs/image_filter_config.dart';
 import 'package:open_mask/filter/filter_meta.dart';
 import 'package:open_mask/filter/i_filter.dart';
 import 'package:open_mask/filter/templates/composite_filter.dart';
+import 'package:open_mask/filter/templates/hat_filter.dart';
 import 'package:open_mask/filter/templates/mustache_filter.dart';
 import 'package:open_mask/ui/views/filter_view.dart';
 import 'package:open_mask/ui/widgets/navigation_bar.dart';
@@ -58,31 +59,40 @@ class _CameraScreenState extends State<CameraScreen> {
     _faceDetectionInitialized = true;
 
     // TODO: ersetzen durch Filterauswahl, Filter sollen in der Filter Factory oder im Filter-Editor gebaut werden.
-    ImageFilterConfig config = ImageFilterConfig(
+    ImageFilterConfig mustacheConfig = ImageFilterConfig(
         imagePath: MustacheFilter.standardImagePath,
         scale: MustacheFilter.standardScale,
         offset: MustacheFilter.standardOffset);
     FilterMeta meta = FilterMeta(
         name: 'Mustache Filter 1', description: 'Unterer Schnurrbart');
-    MustacheFilter mustacheFilter = MustacheFilter(config: config, meta: meta);
-    await mustacheFilter.load();
+    MustacheFilter mustacheFilter =
+        MustacheFilter(config: mustacheConfig, meta: meta);
 
     FilterMeta meta2 = FilterMeta(
         name: 'Mustache Filter 2', description: 'Oberer Schnurrbart');
     ImageFilterConfig config2 = ImageFilterConfig(
         imagePath: MustacheFilter.standardImagePath,
-        offset: const Offset(0, -5),
-        scale: const Scale(0.5, 0.5));
+        offset: const Offset(0, 6),
+        scale: const Scale(0.5, 0.5),
+        opacity: 0.5);
     MustacheFilter mustacheFilter2 =
         MustacheFilter(config: config2, meta: meta2);
-    await mustacheFilter2.load();
+
+    FilterMeta hatMeta =
+        FilterMeta(name: 'Hat Filter', description: 'Hut-Filter');
+    ImageFilterConfig hatConfig = ImageFilterConfig(
+        imagePath: 'assets/images/hat.png',
+        scale: const Scale(1.3, 1.3),
+        offset: const Offset(0, -0.3));
+    HatFilter hatFilter = HatFilter(meta: hatMeta, config: hatConfig);
 
     FilterMeta metaComposite = FilterMeta(
-        name: 'Double Mustache Filter', description: 'Doppelter Schnurrbart');
+        name: 'Hut-Schnurrbart-Filter', description: 'Schnurrbart und Hut');
     CompositeFilter compositeFilter = CompositeFilter(meta: metaComposite);
     final filterList = compositeFilter.filterList;
     filterList.add(mustacheFilter);
     filterList.add(mustacheFilter2);
+    filterList.add(hatFilter);
     _filter = compositeFilter;
 
     if (!mounted) return;
@@ -125,7 +135,7 @@ class _CameraScreenState extends State<CameraScreen> {
               ],
             ),
           ),
-          // TODO: extrahieren
+          // TODO: extrahieren & korrigieren, dass Positioned in einem Column ist (muss in einem Stack sein, oder darf nicht verwendet werden)
           // Schwarze Leiste mit Buttons
           Positioned(
             bottom: 0,

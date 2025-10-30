@@ -32,13 +32,13 @@ class FilterConfig {
   /// Standardmäßige Transparenz ([opacity]).
   static const double standardOpacity = 1.0;
 
-  /// Gibt die relative Positionierung des Filters im Bezug zum je nach Filterart unterschiedlichen Bezugspunkt an.
+  /// Gibt die relative Abweichung des Filters vom je nach Filterart unterschiedlichem Bezugspunkt an.
   Offset offset;
 
   /// Stellt das Verhältnis zwischen Gesichtsgröße und Filter-Größe dar.
   Scale scale;
 
-  /// Gibt die Rotation des Filters an.
+  /// Gibt die Rotation des Filters in Grad an.
   double rotation;
 
   /// Gibt die Transparenz des Filters an.
