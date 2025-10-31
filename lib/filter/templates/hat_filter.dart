@@ -4,17 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/src/face_detector.dart';
 import 'package:open_mask/data/model/scale.dart';
 import 'package:open_mask/data/services/geometry_service.dart';
+import 'package:open_mask/filter/configs/image_filter_config.dart';
+import 'package:open_mask/filter/filter_meta.dart';
 import 'package:open_mask/filter/filter_type.dart';
 import 'package:open_mask/filter/templates/image_filter.dart';
 
 /// Filter, der einen Hut auf dem Kopf platziert.
 class HatFilter extends ImageFilter {
+  /// Standard-Konstruktor
   HatFilter({super.id, required super.meta, required super.config})
       : super(type: FilterType.hat);
 
   /// Factory-Methode zur JSON‑Deserialisierung.
-  factory HatFilter.fromJSON(final Map<String, dynamic> json) =>
-      HatFilter(id: json['id'], meta: json['meta'], config: json['config']);
+  factory HatFilter.fromJSON(final Map<String, dynamic> json) {
+    Map<String, dynamic> configJson = json['config'] ?? {};
+    configJson.putIfAbsent('imagePath', () => defaultImagePath);
+
+    ImageFilterConfig imageFilterConfig =
+        ImageFilterConfig.fromJSON(configJson);
+
+    return HatFilter(
+        id: int.parse(json['id']),
+        meta: FilterMeta.fromJson(json['meta']),
+        config: imageFilterConfig);
+  }
+
+  /// Standarmäßiger Asset-Path ([config.imagePath]).
+  static const String defaultImagePath = 'assets/images/hat.png';
 
   @override
   void apply(final Face face, final Canvas canvas, final Size canvasSize,

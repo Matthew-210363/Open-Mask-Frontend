@@ -5,7 +5,9 @@ import 'package:open_mask/data/services/camera_service.dart';
 import 'package:open_mask/data/services/face_detection_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/filter/configs/image_filter_config.dart';
+import 'package:open_mask/filter/filter_factory.dart';
 import 'package:open_mask/filter/filter_meta.dart';
+import 'package:open_mask/filter/filter_type.dart';
 import 'package:open_mask/filter/i_filter.dart';
 import 'package:open_mask/filter/templates/composite_filter.dart';
 import 'package:open_mask/filter/templates/hat_filter.dart';
@@ -60,9 +62,9 @@ class _CameraScreenState extends State<CameraScreen> {
 
     // TODO: ersetzen durch Filterauswahl, Filter sollen in der Filter Factory oder im Filter-Editor gebaut werden.
     ImageFilterConfig mustacheConfig = ImageFilterConfig(
-        imagePath: MustacheFilter.standardImagePath,
-        scale: MustacheFilter.standardScale,
-        offset: MustacheFilter.standardOffset);
+        imagePath: MustacheFilter.defaultImagePath,
+        scale: MustacheFilter.defaultScale,
+        offset: MustacheFilter.defaultOffset);
     FilterMeta meta = FilterMeta(
         name: 'Mustache Filter 1', description: 'Unterer Schnurrbart');
     MustacheFilter mustacheFilter =
@@ -71,7 +73,7 @@ class _CameraScreenState extends State<CameraScreen> {
     FilterMeta meta2 = FilterMeta(
         name: 'Mustache Filter 2', description: 'Oberer Schnurrbart');
     ImageFilterConfig config2 = ImageFilterConfig(
-        imagePath: MustacheFilter.standardImagePath,
+        imagePath: MustacheFilter.defaultImagePath,
         offset: const Offset(0, 6),
         scale: const Scale(0.5, 0.5),
         opacity: 0.5);
@@ -91,6 +93,8 @@ class _CameraScreenState extends State<CameraScreen> {
     filterList.add(mustacheFilter);
     filterList.add(mustacheFilter2);
     filterList.add(hatFilter);
+    filterList
+        .add(FilterFactory.create(FilterType.mask)..config?.opacity = 0.5);
     _filter = compositeFilter;
 
     if (!mounted) return;

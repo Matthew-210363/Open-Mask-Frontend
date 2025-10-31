@@ -2,10 +2,11 @@ import 'package:open_mask/data/model/user.dart';
 
 /// Enthält alle Metadaten eines Filters.
 class FilterMeta {
+  /// Standard-Konstruktor
   FilterMeta(
       {this.id,
-      required this.name,
-      required this.description,
+      this.name = defaultName,
+      this.description = defaultDescription,
       this.createdBy,
       this.parentId,
       this.createdAt,
@@ -23,6 +24,12 @@ class FilterMeta {
       createdAt: DateTime.tryParse(json['createdAt']),
       updatedAt: DateTime.tryParse(json['updatedAt']));
 
+  /// Standardmäßiger Name ([name]).
+  static const String defaultName = 'Neuer Filter';
+
+  static const String defaultDescription = 'Neu ersteller Filter';
+
+  /// Stellt die Id aus der Datenbank dar.
   final int? id;
 
   /// Name des Filters.

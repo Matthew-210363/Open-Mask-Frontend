@@ -12,37 +12,38 @@ import 'package:open_mask/filter/templates/image_filter.dart';
 /// Filter, der einen Schnurrbart (Mustache) darstellt.
 /// Bildfilter, der relativ zur Nase positioniert wird.
 class MustacheFilter extends ImageFilter {
+  /// Standard-Konstruktor
   MustacheFilter({super.id, required super.meta, required super.config})
       : super(type: FilterType.mustache);
 
   /// Factory-Methode zur JSON‑Deserialisierung.
   factory MustacheFilter.fromJSON(final Map<String, dynamic> json) {
     Map<String, dynamic> configJson = json['config'] ?? {};
-    configJson.putIfAbsent('assetPath', () => standardImagePath);
-    configJson.putIfAbsent('scaleX', () => standardScale.scaleX);
-    configJson.putIfAbsent('scaleY', () => standardScale.scaleY);
-    configJson.putIfAbsent('offsetX', () => standardOffset.dx);
-    configJson.putIfAbsent('offsetY', () => standardOffset.dy);
+    configJson.putIfAbsent('imagePath', () => defaultImagePath);
+    configJson.putIfAbsent('scaleX', () => defaultScale.scaleX);
+    configJson.putIfAbsent('scaleY', () => defaultScale.scaleY);
+    configJson.putIfAbsent('offsetX', () => defaultOffset.dx);
+    configJson.putIfAbsent('offsetY', () => defaultOffset.dy);
 
     ImageFilterConfig imageFilterConfig =
         ImageFilterConfig.fromJSON(configJson);
 
     MustacheFilter mustacheFilter = MustacheFilter(
-        id: json['id'],
+        id: int.parse(json['id']),
         meta: FilterMeta.fromJson(json['meta']),
         config: imageFilterConfig);
 
     return mustacheFilter;
   }
 
-  /// Standarmäßiger Asset-Path.
-  static const String standardImagePath = 'assets/images/mustache.png';
+  /// Standarmäßiger Asset-Path ([config.imagePath]).
+  static const String defaultImagePath = 'assets/images/mustache.png';
 
   /// Standardmäßige relative Position unter der Nase.
-  static const Offset standardOffset = Offset(0.0, 10);
+  static const Offset defaultOffset = Offset(0.0, 10);
 
   /// Standardmäßiger Scale.
-  static const Scale standardScale = Scale(0.4, 0.4);
+  static const Scale defaultScale = Scale(0.4, 0.4);
 
   @override
   void apply(final Face face, final Canvas canvas, final Size canvasSize,

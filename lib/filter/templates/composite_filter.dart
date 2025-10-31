@@ -11,6 +11,7 @@ import 'package:open_mask/filter/templates/filter.dart';
 /// Kombination mehrerer Filter.
 /// Wendet alle enthaltenen Filter auf dasselbe Gesicht an.
 class CompositeFilter extends Filter {
+  /// Standard-Konstruktor
   CompositeFilter({required super.meta})
       : super(config: null, type: FilterType.composite);
 
@@ -22,17 +23,17 @@ class CompositeFilter extends Filter {
     List<IFilter> filterList = compositeFilter.filterList;
     List<Map<String, dynamic>> filterListAsJSON = json['filterList'];
     for (final Map<String, dynamic> filterAsJSON in filterListAsJSON) {
-      filterList.add(FilterFactory.create(filterAsJSON));
+      filterList.add(FilterFactory.fromJSON(filterAsJSON));
     }
 
     return compositeFilter;
   }
 
   /// Liste von Filtern, welche auf das Gesicht angewandt werden.
-  final List<Filter> _filterList = <Filter>[];
+  final List<IFilter> _filterList = <IFilter>[];
 
   /// Liefert eine Liste von Filtern, welche auf das Gesicht angewandt werden.
-  List<Filter> get filterList => _filterList;
+  List<IFilter> get filterList => _filterList;
 
   @override
   void apply(final Face face, final Canvas canvas, final Size canvasSize,
@@ -47,7 +48,7 @@ class CompositeFilter extends Filter {
     Map<String, dynamic> json = super.toJSON();
 
     List<Map<String, dynamic>> filterListAsJSON = <Map<String, dynamic>>[];
-    for (final Filter filter in _filterList) {
+    for (final IFilter filter in _filterList) {
       filterListAsJSON.add(filter.toJSON());
     }
     json['filterList'] = filterListAsJSON;
