@@ -81,9 +81,7 @@ class _CameraScreenState extends State<CameraScreen> {
     FilterMeta hatMeta =
         FilterMeta(name: 'Hat Filter', description: 'Hut-Filter');
     ImageFilterConfig hatConfig = ImageFilterConfig(
-        imagePath: 'assets/images/hat.png',
-        scale: const Scale(1.3, 1.3),
-        offset: const Offset(0, -0.3));
+        imagePath: 'assets/images/hat.png', scale: const Scale(1.3, 1.2));
     HatFilter hatFilter = HatFilter(meta: hatMeta, config: hatConfig);
 
     FilterMeta metaComposite = FilterMeta(
