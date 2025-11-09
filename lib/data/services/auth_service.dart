@@ -62,16 +62,7 @@ class AuthService {
     return false;
   }
 
-  static Future<bool> registert (String email, String password, String username, String name) async{
 
-    var url = Uri.https('openmask.fabianmild.dev', '/api/notauth/login');
-    var response = await http.get(url, headers: {"email" : email, "Password" : password,"username": username, "name" : name});
-    if(response.statusCode != "200"){
-      return false;
-    }
-
-    return true;
-  }
 
   /// Registriert den Benutzer
 
