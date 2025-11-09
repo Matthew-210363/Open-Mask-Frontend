@@ -13,12 +13,18 @@ import 'package:http/http.dart' as http;
 class AuthService {
   /// Meldet den Benutzer an und überprüft, ob die E-Mail verifiziert wurde. Liefert true zurück, wenn die Anmeldung erfolgreich war.
 
-  static Future<http.Response> logintest(String email, String password) async{
+  static Future<bool> logintest(String email, String password) async{
 
       var url = Uri.https('openmask.fabianmild.dev', '/api/notauth/login');
-      var response = await http.get(url, headers: {"email" : email, "Password" : password});
+      try{
+        var response = await http.get(url, headers: {"email" : email, "Password" : password});
+        SnackBarService.showMessage('Du bist eingelogt');
+        return true;
+      } catch(e){
 
-      return response;
+        SnackBarService.showMessage('Error: ${e.toString()}');
+        return false;
+      }
   }
 
   static Future<bool> login(String email, String password) async {
