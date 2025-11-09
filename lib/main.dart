@@ -5,6 +5,8 @@ import 'package:open_mask/data/services/face_detection_service.dart';
 import 'package:open_mask/routing/routes.dart';
 import 'package:provider/provider.dart';
 
+import 'data/services/automatic_login_service.dart';
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
@@ -15,6 +17,7 @@ void main() async {
 
   final cameraService = CameraService();
   final faceDetectionService = FaceDetectionService(cameraService);
+  AutomaticLoginService.autoLogin();
 
   runApp(
     MultiProvider(

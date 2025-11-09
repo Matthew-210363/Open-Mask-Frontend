@@ -8,6 +8,7 @@ class LoginViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   bool _isLoggedIn = false;
+
   bool get isLoggedIn => _isLoggedIn;
 
   Future<void> login(final String email, final String password) async {
@@ -19,7 +20,7 @@ class LoginViewModel extends ChangeNotifier {
       SnackBarService.showMessage('Bitte E-Mail und Passwort angeben!');
     }
 
-    _isLoggedIn = await AuthService.login(email, password);
+    _isLoggedIn = await AuthService.logintest(email, password);
 
     if (isLoggedIn) {
       SnackBarService.showMessage('Login erfolgreich!');

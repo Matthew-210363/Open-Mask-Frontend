@@ -31,7 +31,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+
   permission_handler: ^11.0.1
+  shared_preferences: ^2.2.2
 
   # Firebase Dependencies
   firebase_core: ^3.9.0
