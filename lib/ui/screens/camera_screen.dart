@@ -29,20 +29,19 @@ class CameraScreen extends StatefulWidget {
   final bool showLandmarks;
 
   @override
-  State<CameraScreen> createState() =>
-      _CameraScreenState(
-          showMarkings: showMarkings, showLandmarks: showLandmarks);
+  State<CameraScreen> createState() => _CameraScreenState(
+      showMarkings: showMarkings, showLandmarks: showLandmarks);
 }
 
 class _CameraScreenState extends State<CameraScreen> {
-  _CameraScreenState({bool showMarkings = true, bool showLandmarks = true})
+  _CameraScreenState(
+      {final bool showMarkings = true, final bool showLandmarks = true})
       : _showLandmarks = showLandmarks,
         _showMarkings = showMarkings;
   final bool _showMarkings;
   final bool _showLandmarks;
   late FaceDetectionService _faceDetectionService;
   late CameraService _cameraService;
-  bool _faceDetectionInitialized = false;
 
   // TODO: Filter auswählen
   IFilter? _filter;
@@ -59,7 +58,6 @@ class _CameraScreenState extends State<CameraScreen> {
     _cameraService = Provider.of<CameraService>(context, listen: false);
     await _cameraService.initialize();
     await _faceDetectionService.initialize();
-    _faceDetectionInitialized = true;
 
     // TODO: ersetzen durch Filterauswahl, Filter sollen in der Filter Factory oder im Filter-Editor gebaut werden.
     FilterConfig mustacheConfig = FilterConfig(
@@ -98,8 +96,7 @@ class _CameraScreenState extends State<CameraScreen> {
     filterList.add(mustacheFilter2);
     filterList.add(hatFilter);
     filterList
-        .add(FilterFactory.create(FilterType.mask)
-      ..config?.opacity = 0.5);
+        .add(FilterFactory.create(FilterType.mask)..config?.opacity = 0.5);
     _filter = compositeFilter;
 
     if (!mounted) return;
@@ -118,12 +115,11 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void dispose() {
     super.dispose();
-    // Nicht mehr notwendig, da Services über Provider verwaltet werden
   }
 
   @override
   Widget build(final BuildContext context) {
-    if (!_faceDetectionInitialized ||
+    if (!_faceDetectionService.initialized ||
         !_cameraService.cameraController.value.isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -138,13 +134,13 @@ class _CameraScreenState extends State<CameraScreen> {
                 CameraPreview(_cameraService.cameraController),
                 FaceDetectorView(
                     showMarkings: _showMarkings, showLandmarks: _showLandmarks),
-                FilterView(_filter!),
+                if (_filter != null) FilterView(_filter!),
               ],
             ),
           ),
           // TODO: extrahieren & korrigieren, dass Positioned in einem Column ist (muss in einem Stack sein, oder darf nicht verwendet werden)
           // Schwarze Leiste mit Buttons
-          Positioned(
+          /*Positioned(
             bottom: 0,
             left: 0,
             right: 0,
@@ -155,7 +151,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.flash_on, color: Colors.white, size: 30),
+                    icon: const Icon(Icons.flash_on,
+                        color: Colors.white, size: 30),
                     onPressed: () {},
                   ),
                   FloatingActionButton(
@@ -172,24 +169,10 @@ class _CameraScreenState extends State<CameraScreen> {
                 ],
               ),
             ),
-          ),
+          ),*/
           const CustomNavigationBar(currentRoute: CameraScreen.routePath),
         ],
       ),
     );
-
-    /* Ohne UI
-    // TODO: löschen, wenn UI funktioniert
-    print("CameraPage build");
-    return Scaffold(
-      appBar: AppBar(),
-      body: Stack(
-        children: [
-          CameraPreview(_cameraService.cameraController),
-          FaceDetectorView(showMarkings: _showMarkings, showLandmarks: _showLandmarks),
-          FilterView(filter: _filter!),
-        ],
-      ),
-    );*/
   }
 }

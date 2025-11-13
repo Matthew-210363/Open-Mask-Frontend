@@ -25,9 +25,9 @@ class FaceMarkingsPainter extends CustomPainter {
     final double scaleY = canvasHeight / originalHeight;
 
     // Debug-Ausgabe:
-    print("FaceMarkingsPainter:");
-    print("Canvas size: $size, Image size: $_imageSize");
-    print("ScaleX: $scaleX, ScaleY: $scaleY");
+    print('FaceMarkingsPainter:');
+    print('Canvas size: $size, Image size: $_imageSize');
+    print('ScaleX: $scaleX, ScaleY: $scaleY');
     print(_faces.length);
 
     final paint = Paint()
@@ -35,7 +35,7 @@ class FaceMarkingsPainter extends CustomPainter {
       ..strokeWidth = 2.0
       ..color = Colors.red;
 
-    for (Face face in _faces) {
+    for (final Face face in _faces) {
       double left = isFrontCamera
           ? size.width - face.boundingBox.left * scaleX // spiegeln
           : face.boundingBox.left * scaleX;
@@ -76,7 +76,7 @@ class FaceMarkingsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant FaceMarkingsPainter oldDelegate) {
+  bool shouldRepaint(covariant final FaceMarkingsPainter oldDelegate) {
     return oldDelegate._faces != _faces;
   }
 }
