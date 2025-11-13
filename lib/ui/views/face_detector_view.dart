@@ -24,7 +24,7 @@ class FaceDetectorView extends StatelessWidget {
       return Container();
     }
 
-    print("Face Detector View build");
+    print('Face Detector View build');
     return CustomPaint(
       foregroundPainter: FaceMarkingsPainter(
           faceDetectionService.faces, faceDetectionService.imageSize,
@@ -32,7 +32,9 @@ class FaceDetectorView extends StatelessWidget {
               cameraService.cameraController.description.lensDirection ==
                   CameraLensDirection.front,
           showLandmarks: _showLandmarks),
-      size: cameraService.cameraController.value.previewSize!,
+      size: (cameraService.cameraController.value.previewSize != null)
+          ? cameraService.cameraController.value.previewSize!
+          : Size.zero,
     );
   }
 }

@@ -13,6 +13,10 @@ class FaceDetectionService extends ChangeNotifier {
   late FaceDetector _faceDetector;
   final CameraService _cameraService;
 
+  bool _initialized = false;
+
+  bool get initialized => _initialized;
+
   List<Face> get faces => _faces;
 
   Size get imageSize => _imageSize;
@@ -39,19 +43,24 @@ class FaceDetectionService extends ChangeNotifier {
   );
 
   Future<void> initialize() async {
+    _initialized = false;
+
     // FaceDetector initialisieren:
     _faceDetector = FaceDetector(options: _faceDetectorOptions);
     // Vorübergehend, damit es einen Wert hat. Bekommt später die Originalgröße
     _imageSize = _cameraService.cameraController.value.previewSize!;
 
-    await _cameraService.cameraController.startImageStream((CameraImage image) {
+    await _cameraService.cameraController
+        .startImageStream((final CameraImage image) {
       if (_isDetecting) return;
       _isDetecting = true;
       _processImage(image);
     });
+
+    _initialized = true;
   }
 
-  Future<void> _processImage(CameraImage image) async {
+  Future<void> _processImage(final CameraImage image) async {
     try {
       // CameraImage in InputImage umwandeln:
       final InputImage? inputImage = ImageService.inputImageFromCameraImage(
@@ -59,7 +68,7 @@ class FaceDetectionService extends ChangeNotifier {
 
       if (inputImage == null) {
         SnackBarService.showMessage(
-            "Fehler bei der Umwandlung des Bildformates (${InputImageFormatValue.fromRawValue(image.format.raw)})");
+            'Fehler bei der Umwandlung des Bildformates (${InputImageFormatValue.fromRawValue(image.format.raw)})');
         return;
       }
 
@@ -72,7 +81,7 @@ class FaceDetectionService extends ChangeNotifier {
 
       _update(detectedFaces, newImageSize);
     } catch (e) {
-      SnackBarService.showMessage("Fehler bei der Verarbeitung des Bildes: $e");
+      SnackBarService.showMessage('Fehler bei der Verarbeitung des Bildes: $e');
     } finally {
       _isDetecting = false;
     }
