@@ -7,29 +7,43 @@ import 'package:open_mask/data/services/snackbar_service.dart';
 
 /// Service zur Verwaltung der Kamerafunktionen.
 class CameraService {
+  /// Standard-Konstruktor.
   CameraService(
       {this.resolutionPreset = ResolutionPreset.medium,
-      final CameraLensDirection cameraLensDirection =
+      final CameraLensDirection initialCameraLensDirection =
           CameraLensDirection.front})
-      : _cameraLensDirection = cameraLensDirection;
+      : _initialCameraLensDirection = initialCameraLensDirection;
 
+  /// Controller, der auf die Kamera zugreift und über den diese gesteuert werden kann.
   CameraController? cameraController;
+
+  /// Index der aktuell ausgewählten Kamera für die [_cameras]-Liste.
   int _cameraIndex = -1;
+
+  /// Liste aller verfügbaren Kameras. Wird in [initialize] geladen.
   List<CameraDescription> _cameras = [];
 
   // TODO: über Einstellungen setzen
+  /// Gibt die Kameraauflösung an.
   ResolutionPreset resolutionPreset;
+
+  /// Funktion, an die die Bilder der Kamera als InputImage gestreamt werden.
   Function(InputImage inputImage)? onImage;
 
-  // TODO: Kamera wechseln
-  CameraLensDirection _cameraLensDirection;
+  /// Gibt die initiale Ausrichtung an.
+  final CameraLensDirection _initialCameraLensDirection;
 
+  /// Gibt an, ob die Kamera läuft und an [onImage] streamt.
   bool _cameraLive = false;
 
+  /// Gibt an, ob die Kamera läuft und an [onImage] streamt.
   bool get cameraLive => _cameraLive;
 
-  CameraLensDirection get cameraLensDirection => _cameraLensDirection;
+  /// Gibt die aktuelle Kameraausrichtung oder, falls keine Kamera gefunden wird, die initiale Ausrichtung an.
+  CameraLensDirection get cameraLensDirection =>
+      (camera != null) ? camera!.lensDirection : _initialCameraLensDirection;
 
+  /// Aktuell ausgewählte Kamera.
   CameraDescription? get camera =>
       (_cameras.isEmpty || _cameraIndex == -1) ? null : _cameras[_cameraIndex];
 
@@ -44,7 +58,7 @@ class CameraService {
       }
     }
     for (var i = 0; i < _cameras.length; i++) {
-      if (_cameras[i].lensDirection == _cameraLensDirection) {
+      if (_cameras[i].lensDirection == _initialCameraLensDirection) {
         _cameraIndex = i;
         break;
       }
@@ -73,11 +87,48 @@ class CameraService {
     try {
       await cameraController!.initialize();
     } catch (e) {
-      SnackBarService.showMessage('Initialisierung der Kamera fehlgeschlagen');
+      SnackBarService.showMessage('Initialisierung der Kamera fehlgeschlagen!');
       return;
     }
+    try {
+      cameraController?.startImageStream(_processCameraImage);
+    } catch (e) {
+      SnackBarService.showMessage('Starten des Bild-Streams fehlgeschlagen!');
+    }
+    if (cameraController == null || !cameraController!.value.isInitialized) {
+      SnackBarService.showMessage('Starten der Kamera fehlgeschlagen!');
+      return;
+    }
+    _cameraLive = true;
     cameraController?.startImageStream(_processCameraImage);
     _cameraLive = true;
+  }
+
+  /// Stoppt die Kamera und den Bild-Stream an [onImage].
+  Future<void> stopCamera() async {
+    _cameraLive = false;
+    await cameraController?.stopImageStream();
+    await cameraController?.dispose();
+    cameraController = null;
+  }
+
+  /// Nimmt ein Bild auf.
+  Future<XFile> takePicture() async {
+    if (cameraController == null || !cameraController!.value.isInitialized) {
+      SnackBarService.showMessage('Kamera noch nicht initialisiert');
+    }
+    return await cameraController!.takePicture();
+  }
+
+  /// Wechselt die Kamera.
+  Future<void> switchLiveCamera() async {
+    _cameraIndex = (_cameraIndex + 1) % _cameras.length;
+
+    if (camera == null) {
+      return;
+    }
+    await stopCamera();
+    await startCamera();
   }
 
   /// Bild umwandeln und [onImage] zur Verarbeitung aufrufen.
@@ -92,19 +143,5 @@ class CameraService {
       return;
     }
     onImage!(inputImage);
-  }
-
-  Future<XFile> takePicture() async {
-    if (cameraController == null || !cameraController!.value.isInitialized) {
-      SnackBarService.showMessage('Kamera noch nicht initialisiert');
-    }
-    return await cameraController!.takePicture();
-  }
-
-  Future<void> stopCamera() async {
-    _cameraLive = false;
-    await cameraController?.stopImageStream();
-    await cameraController?.dispose();
-    cameraController = null;
   }
 }

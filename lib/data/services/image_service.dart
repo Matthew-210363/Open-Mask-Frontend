@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:http/http.dart' as http;
 import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Service für bildbezogene Operationen.
 class ImageService {
@@ -53,6 +54,39 @@ class ImageService {
     DeviceOrientation.portraitDown: 180,
     DeviceOrientation.landscapeRight: 270,
   };
+
+  /// Liefert den Galerie-Ordner zurück bzw. erstellt diesen, wenn nötig.
+  static Future<Directory> getGalleryDirectory() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final galleryDir = Directory('${dir.path}/photos');
+
+    if (!await galleryDir.exists()) {
+      await galleryDir.create(recursive: true);
+    }
+
+    return galleryDir;
+  }
+
+  /// Speichert ein aufgenommenes Foto in den Cache.
+  static Future<File> savePhotoToGallery(final XFile picture) async {
+    final dir = await getGalleryDirectory();
+    final file =
+        File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    return File(picture.path).copy(file.path);
+  }
+
+  /// Lädt Fotos aus dem Cache.
+  static Future<List<File>> loadLocalPhotos() async {
+    final dir = await getGalleryDirectory();
+    final files = Directory(dir.path)
+        .listSync()
+        .whereType<File>()
+        .where((final file) => file.path.endsWith('.jpg'))
+        .toList()
+      ..sort((final a, final b) => b.path.compareTo(a.path)); // neueste zuerst
+
+    return files;
+  }
 
   /// Umwandlung eines [CameraImage] in ein [InputImage], damit es für das Google ML Kit lesbar ist (https://pub.dev/packages/google_mlkit_commons).
   static InputImage? inputImageFromCameraImage(

@@ -32,6 +32,9 @@ class FilterImage {
   /// Der Name des Bildes, welcher beim Speichern als Dateiname dient.
   final String filename;
 
+  /// MIME-Typ des Bildes, z.B. "image/png".
+  String? mimeType;
+
   /// Wenn das Bild ein lokales Asset ist.
   String? assetPath;
 
