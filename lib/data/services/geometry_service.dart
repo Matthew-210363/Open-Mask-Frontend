@@ -9,7 +9,7 @@ class GeometryService {
   static Offset rotateOffset(final Offset offset, final double angle) {
     final rotatedOffsetX = offset.dx * cos(angle) + offset.dy * sin(angle);
     // x′ = x * cos(alpha) − y * sin(alpha)
-    // --> sin umdrehen, weil y-Achso im Canvas invertiert ist (von oben nach unten)
+    // --> sin umdrehen, weil y-Achse im Canvas invertiert ist (von oben nach unten)
     final rotatedOffsetY = offset.dx * sin(angle) + offset.dy * cos(angle);
     // y′ = x * sin(θ) + y * cos(θ)
 
