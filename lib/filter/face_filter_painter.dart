@@ -8,6 +8,12 @@ import 'package:open_mask/filter/i_filter.dart';
 /// Ein [CustomPainter], welcher dazu dient einen Filter auf mehrere Gesichter anzuwenden.
 class FaceFilterPainter extends CustomPainter {
   /// Standard-Konstruktor.
+  /// <ul>
+  ///   <li>[faces] Liste der Gesichter, auf die der Filter angewandt werden soll.</li>
+  ///   <li>[imageSize] Originalgröße des Bildes.</li>
+  ///   <li>[isFrontCamera] Gibt an, ob die verwendete Kamera die Frontkamera ist und das Preview daher gespiegelt ist.</li>
+  ///   <li>[filter] Der Filter, der angewandt werden soll.</li>
+  /// </ul>
   FaceFilterPainter({
     required final List<Face> faces,
     required final Size imageSize,
@@ -24,7 +30,7 @@ class FaceFilterPainter extends CustomPainter {
   /// Größe des aufgenommenen und analysierten Bildes.
   final Size _imageSize;
 
-  /// Gibt an, ob die verwendete Kamera die Frontkamera ist und das Bild daher gespiegelt ist.
+  /// Gibt an, ob die verwendete Kamera die Frontkamera ist und das Preview daher gespiegelt ist.
   final bool _isFrontCamera;
 
   /// Der Filter, der auf die Gesichter [_faces] angewendet werden soll.

@@ -98,6 +98,7 @@ class CameraView extends StatelessWidget {
     );
   }
 
+  /// Lädt die Photos mit [ImageService.loadLocalPhotos] und öffnet das Galerie-Popup ([GalleryPopup]).
   Future<void> _openGalleryPopup(final BuildContext context) async {
     final photos = await ImageService.loadLocalPhotos();
     if (!context.mounted) return;

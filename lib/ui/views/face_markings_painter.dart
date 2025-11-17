@@ -3,16 +3,36 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:open_mask/data/services/face_detection_service.dart';
 import 'package:open_mask/data/services/geometry_service.dart';
 
+/// Ein [CustomPainter], welcher die Gesichtserkennung des [FaceDetectionService] visualisiert.
 class FaceMarkingsPainter extends CustomPainter {
-  FaceMarkingsPainter(this._faces, this._imageSize,
-      {this.isFrontCamera = true, this.showLandmarks = true});
+  /// Standard-Konstruktor.
+  /// <ul>
+  ///   <li>[faces] Liste der analysierten Gesichter, die visualisiert werden sollen. </li>
+  ///   <li>[imageSize] Größe des Originalbildes. </li>
+  ///   <li>[isFrontCamera] Gibt an, ob die verwendete Kamera die Frontkamera ist und das Preview daher gespiegelt ist. </li>
+  ///   <li>[showLandmarks] Gibt an, ob erkannte Punkte wie Nasen, Augen, Ohren, etc. ebenfalls visualisiert werden sollen. </li>
+  /// </ul>
+  FaceMarkingsPainter(final List<Face> faces, final Size imageSize,
+      {final bool isFrontCamera = true, final bool showLandmarks = true})
+      : _faces = faces,
+        _imageSize = imageSize,
+        _showLandmarks = showLandmarks,
+        _isFrontCamera = isFrontCamera;
 
+  /// Liste der analysierten Gesichter, die visualisiert werden sollen.
   final List<Face> _faces;
+
+  /// Größe des Originalbildes.
   final Size _imageSize;
-  final bool isFrontCamera;
-  final bool showLandmarks;
+
+  /// Gibt an, ob die verwendete Kamera die Frontkamera ist und das Preview daher gespiegelt ist.
+  final bool _isFrontCamera;
+
+  /// Gibt an, ob erkannte Punkte wie Nasen, Augen, Ohren, etc. ebenfalls visualisiert werden sollen.
+  final bool _showLandmarks;
 
   @override
   void paint(final Canvas canvas, final Size size) {
@@ -32,11 +52,11 @@ class FaceMarkingsPainter extends CustomPainter {
     print(_faces.length);
 
     for (final Face face in _faces) {
-      double left = isFrontCamera
+      double left = _isFrontCamera
           ? size.width - face.boundingBox.left * scaleX // spiegeln
           : face.boundingBox.left * scaleX;
       double top = face.boundingBox.top * scaleY;
-      double right = isFrontCamera
+      double right = _isFrontCamera
           ? size.width - face.boundingBox.right * scaleX // spiegeln
           : face.boundingBox.right * scaleX;
       double bottom = face.boundingBox.bottom * scaleY;
@@ -77,15 +97,15 @@ class FaceMarkingsPainter extends CustomPainter {
       //print('Anteil der Gesichtshöhe: $faceHeightPortion');
       //print('Anteil des Gesichts: $facePortion');
 
-      final totalRotation =
-          GeometryService.calculateFaceZRotation(face, inverseX: isFrontCamera);
+      final totalRotation = GeometryService.calculateFaceZRotation(face,
+          inverseX: _isFrontCamera);
 
       // Canvas-Transformationen
       canvas.save();
 
       // Um Mittelpunkt des Gesichts rotieren
       canvas.translate(faceRect.center.dx, faceRect.center.dy);
-      canvas.rotate(isFrontCamera ? -totalRotation : totalRotation);
+      canvas.rotate(_isFrontCamera ? -totalRotation : totalRotation);
       canvas.translate(-faceRect.center.dx, -faceRect.center.dy);
 
       canvas.drawRRect(roundedFaceRect, faceRectPaint);
@@ -93,7 +113,7 @@ class FaceMarkingsPainter extends CustomPainter {
 
       canvas.restore();
 
-      if (!showLandmarks) {
+      if (!_showLandmarks) {
         continue;
       }
       // Gesichts-Features:
@@ -104,7 +124,7 @@ class FaceMarkingsPainter extends CustomPainter {
             continue;
           }
           Point<int> landmarkPosition = face.landmarks[landmarkType]!.position;
-          double x = isFrontCamera
+          double x = _isFrontCamera
               ? size.width - landmarkPosition.x.toDouble() * scaleX // spiegeln
               : landmarkPosition.x.toDouble() * scaleX;
           double y = landmarkPosition.y.toDouble() * scaleY;
