@@ -2,10 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+/// Popup, welches Bilder in einer Galerie anzeigt.
 class GalleryPopup extends StatelessWidget {
-  const GalleryPopup({super.key, required this.photos});
+  /// Standard-Konstruktor. <br>
+  /// [photos] stellt die Liste der darzustellenden Fotos dar.
+  const GalleryPopup({super.key, required final List<File> photos})
+      : _photos = photos;
 
-  final List<File> photos;
+  /// Die Liste der darzustellenden Fotos.
+  final List<File> _photos;
 
   @override
   Widget build(final BuildContext context) {
@@ -33,7 +38,7 @@ class GalleryPopup extends StatelessWidget {
 
             // Titel
             Text(
-              'Galera',
+              'App-Galerie',
               style: theme.textTheme.titleLarge?.copyWith(
                 color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
@@ -52,11 +57,11 @@ class GalleryPopup extends StatelessWidget {
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                   ),
-                  itemCount: photos.length,
+                  itemCount: _photos.length,
                   itemBuilder: (final context, final index) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.file(photos[index], fit: BoxFit.cover),
+                      child: Image.file(_photos[index], fit: BoxFit.cover),
                     );
                   },
                 ),

@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:open_mask/data/repositories/auth_repository.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
-import 'package:open_mask/ui/widgets/form_header_text.dart';
 
 // TODO: Umstellen auf Java Backend
 // TODO: nicht static machen und Anmeldedaten etc. speichern
@@ -29,7 +26,7 @@ class AuthService {
         SnackBarService.showMessage('Email oder Passwort ist falsch!');
         return false;
       }
-      SnackBarService.showMessage('Du bist eingelogt');
+      //SnackBarService.showMessage('Login erfolgreich!');
       return true;
     } catch (e) {
       SnackBarService.showMessage('Error: ${e.toString()}');
@@ -110,8 +107,6 @@ class AuthService {
       return false;
     }
   }
-
-
 
   static Future<void> deleteAccount(BuildContext context) async {
     try {

@@ -6,7 +6,13 @@ import 'package:provider/provider.dart';
 
 import 'face_markings_painter.dart';
 
+/// View, welches ein Filter-Overlay über darstellt, welches Gesichtserkennungsmarkierungen mithilfe vom [FaceMarkingsPainter] darstellt.
 class FaceMarkingsView extends StatelessWidget {
+  /// Standard-Konstruktor.
+  /// <ul>
+  ///   <li>[showMarkings] Gibt an, ob Markierungen angezeigt werden sollen. </li>
+  ///   <li>[showLandmarks] Gibt an, ob erkannte Punkte wie Nasen, Augen, Ohren, etc. ebenfalls visualisiert werden sollen. </li>
+  /// </ul>
   const FaceMarkingsView(
       {super.key,
       final bool showMarkings = true,
@@ -14,7 +20,10 @@ class FaceMarkingsView extends StatelessWidget {
       : _showLandmarks = showLandmarks,
         _showMarkings = showMarkings;
 
+  /// Gibt an, ob Markierungen angezeigt werden sollen.
   final bool _showMarkings;
+
+  /// Gibt an, ob erkannte Punkte wie Nasen, Augen, Ohren, etc. ebenfalls visualisiert werden sollen.
   final bool _showLandmarks;
 
   @override

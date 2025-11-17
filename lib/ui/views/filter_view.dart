@@ -7,9 +7,13 @@ import 'package:provider/provider.dart';
 import '../../filter/face_filter_painter.dart';
 import '../../filter/i_filter.dart';
 
+/// View, welches ein Filter-Overlay über darstellt, welches Filter mithilfe vom [FaceFilterPainter] darstellt.
 class FilterView extends StatelessWidget {
+  /// Standard-Konstruktor. <br>
+  /// [_filter] ist der Filter, der gerade verwendet wird.
   const FilterView(this._filter, {super.key});
 
+  /// Filter, der gerade verwendet wird.
   final IFilter _filter;
 
   @override
