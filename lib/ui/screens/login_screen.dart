@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_mask/routing/active_branch_notifier.dart';
 import 'package:open_mask/ui/screens/register_screen.dart';
 import 'package:open_mask/ui/view_models/login_view_model.dart';
 import 'package:open_mask/ui/views/login_form_view.dart';
@@ -23,9 +24,13 @@ class _LoginScreenState extends State<LoginScreen> {
       create: (_) => LoginViewModel(),
       child: Consumer<LoginViewModel>(
         builder: (context, vm, child) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((final _) {
             if (!vm.isLoading && vm.isLoggedIn) {
-              context.pushReplacement(CameraScreen.routePath);
+              // TODO:
+              // Shell-Router-Branch setzen, damit die Kamera direkt geladen wird
+              ActiveBranchNotifier.instance.value =
+                  CameraScreen.cameraBranchIndex;
+              context.go(CameraScreen.routePath);
             }
           });
 

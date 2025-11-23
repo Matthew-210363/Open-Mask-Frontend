@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:open_mask/ui/widgets/navigation_bar.dart';
 
 class FilterWorkshopScreen extends StatelessWidget {
   const FilterWorkshopScreen({super.key});
 
   static const routePath = '/filter-workshop';
+
+  /// Gibt den Index des Filter-Workshop-Tabs für das Shell-Routing an.
+  static const int filterWorkshopBranchIndex = 0;
 
   @override
   Widget build(final BuildContext context) {
@@ -97,8 +99,6 @@ class FilterWorkshopScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: const CustomNavigationBar(
-          currentRoutePath: FilterWorkshopScreen.routePath),
     );
   }
 }

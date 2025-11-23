@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/services/image_service.dart';
 import 'package:open_mask/ui/screens/camera_screen.dart';
 import 'package:open_mask/ui/screens/filter_workshop_screen.dart';
@@ -7,12 +6,22 @@ import 'package:open_mask/ui/screens/settings_screen.dart';
 
 /// Navigationsleiste, mit der angemeldete Benutzer die Hauptseiten der App erreichen können.
 class CustomNavigationBar extends StatelessWidget {
-  /// Standard-Konstruktor.<br>
-  /// [currentRoutePath] Gibt die Route der aktuellen Seite an, zu der nicht navigiert werden können soll.
-  const CustomNavigationBar({super.key, required this.currentRoutePath});
+  /// Standard-Konstruktor.
+  /// <ul>
+  ///   <li>[currentIndex] Gibt den Index der Route der aktuellen Seite an, zu der nicht navigiert werden können soll.</li>
+  ///   <li>[onBranchSelected] Wird bei der Auswahl eines Branches aufgerufen. <br>
+  ///   [destinationIndex] Gibt den Index der Seite an, zu der navigiert werden soll.
+  ///   </li>
+  /// </ul>
+  const CustomNavigationBar(
+      {super.key, required this.currentIndex, required this.onBranchSelected});
 
-  /// Gibt die Route der aktuellen Seite an, zu der nicht navigiert werden können soll.
-  final String currentRoutePath;
+  /// Gibt den Index der Route der aktuellen Seite an, zu der nicht navigiert werden können soll.
+  final int currentIndex;
+
+  /// Wird bei der Auswahl eines Branches aufgerufen. <br>
+  /// [destinationIndex] Gibt den Index der Seite an, zu der navigiert werden soll.
+  final void Function(int destinationIndex) onBranchSelected;
 
   @override
   Widget build(final BuildContext context) {
@@ -40,24 +49,25 @@ class CustomNavigationBar extends StatelessWidget {
       height: 60,
       child: MaterialButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-        onPressed: () => currentRoutePath == FilterWorkshopScreen.routePath
-            ? null
-            : context.push(FilterWorkshopScreen.routePath,
-                extra: currentRoutePath),
+        onPressed: () => currentIndex ==
+                FilterWorkshopScreen.filterWorkshopBranchIndex
+            ? {}
+            : onBranchSelected(FilterWorkshopScreen.filterWorkshopBranchIndex),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: (currentRoutePath == FilterWorkshopScreen.routePath)
-              ? [
-                  const Icon(Icons.create, color: Colors.indigo, size: 30),
-                  const Text(
-                    'Filterwerkstatt',
-                    style: TextStyle(color: Colors.indigo),
-                  ),
-                ]
-              : [
-                  const Icon(Icons.create_outlined, size: 30),
-                  const Text('Filterwerkstatt'),
-                ],
+          children:
+              (currentIndex == FilterWorkshopScreen.filterWorkshopBranchIndex)
+                  ? [
+                      const Icon(Icons.create, color: Colors.indigo, size: 30),
+                      const Text(
+                        'Filterwerkstatt',
+                        style: TextStyle(color: Colors.indigo),
+                      ),
+                    ]
+                  : [
+                      const Icon(Icons.create_outlined, size: 30),
+                      const Text('Filterwerkstatt'),
+                    ],
         ),
       ),
     );
@@ -73,10 +83,10 @@ class CustomNavigationBar extends StatelessWidget {
               Image.asset('assets/images/icons/app-icon.jpeg').image,
           radius: 32,
         ),
-        isSelected: currentRoutePath == CameraScreen.routePath,
-        onPressed: () => (currentRoutePath == CameraScreen.routePath)
+        isSelected: currentIndex == CameraScreen.cameraBranchIndex,
+        onPressed: () => (currentIndex == CameraScreen.cameraBranchIndex)
             ? {}
-            : context.push(CameraScreen.routePath, extra: currentRoutePath));
+            : onBranchSelected(CameraScreen.cameraBranchIndex));
   }
 
   /// Liefert das Navigations-Widget für die Einstellungen zurück.
@@ -85,12 +95,12 @@ class CustomNavigationBar extends StatelessWidget {
       height: 60,
       child: MaterialButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-        onPressed: () => currentRoutePath == SettingsScreen.routePath
-            ? null
-            : context.push(SettingsScreen.routePath, extra: currentRoutePath),
+        onPressed: () => currentIndex == SettingsScreen.settingsBranchIndex
+            ? {}
+            : onBranchSelected(SettingsScreen.settingsBranchIndex),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: (currentRoutePath == SettingsScreen.routePath)
+          children: (currentIndex == SettingsScreen.settingsBranchIndex)
               ? [
                   const Icon(
                     Icons.settings,

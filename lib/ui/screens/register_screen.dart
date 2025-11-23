@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String name = _nameController.text.trim();
 
     bool authSuccessful =
-        await AuthService.register(email, password, username, name);
+        await AuthService.instance.register(email, password, username, name);
 
     if (authSuccessful) {
       context.pop();

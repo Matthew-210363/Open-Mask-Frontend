@@ -18,7 +18,7 @@ class CameraView extends StatelessWidget {
   Widget build(final BuildContext context) {
     final CameraViewModel vm = context.watch<CameraViewModel>();
 
-    if (!vm.initializedAndLive) {
+    if (!vm.cameraLive) {
       return const Center(child: CircularProgressIndicator());
     }
 

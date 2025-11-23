@@ -36,7 +36,7 @@ class AutomaticLoginService {
     if (_rememberMe) {
       String email = prefs.getString('email') ?? '';
       String password = prefs.getString('password') ?? '';
-      bool success = await AuthService.login(email, password);
+      bool success = await AuthService.instance.login(email, password);
       //-> login Seite
       // am Besten über Routing
       // (z.B. Loading/Starting Screen (route: "/") machen,

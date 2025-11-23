@@ -9,9 +9,21 @@ import 'package:open_mask/data/services/snackbar_service.dart';
 
 // TODO: Umstellen auf Java Backend
 // TODO: nicht static machen und Anmeldedaten etc. speichern
-class AuthService {
+class AuthService extends ChangeNotifier {
+  /// Privater Konstruktor für das Singleton-Pattern.
+  AuthService._privateConstructor();
+
+  /// Singleton-Instanz.
+  static final AuthService instance = AuthService._privateConstructor();
+
+  /// Gibt an, ob ein Benutzer eingeloggt ist.
+  bool _loggedIn = false;
+
+  /// Gibt an, ob ein Benutzer eingeloggt ist.
+  bool get loggedIn => _loggedIn;
+
   /// Meldet den Benutzer an und überprüft, ob die E-Mail verifiziert wurde. Liefert true zurück, wenn die Anmeldung erfolgreich war.
-  static Future<bool> login(final String email, final String password) async {
+  Future<bool> login(final String email, final String password) async {
     var url = Uri.https(
       'openmask.fabianmild.dev',
       '/api/notauth/login',
@@ -20,22 +32,32 @@ class AuthService {
         'password': password,
       },
     );
+    bool success = false;
     try {
       var response = await http.get(url);
       if (response.statusCode != 200) {
         SnackBarService.showMessage('Email oder Passwort ist falsch!');
-        return false;
+        success = false;
       }
       //SnackBarService.showMessage('Login erfolgreich!');
-      return true;
+      success = true;
     } catch (e) {
       SnackBarService.showMessage('Error: ${e.toString()}');
-      return false;
+      success = false;
     }
+    _loggedIn = success;
+    notifyListeners();
+    return success;
   }
 
-  static Future<bool> loginFirebase(
-      final String email, final String password) async {
+  Future<bool> logout() async {
+    _loggedIn = false;
+    notifyListeners();
+    // TODO: implement
+    return !_loggedIn;
+  }
+
+  Future<bool> loginFirebase(final String email, final String password) async {
     UserCredential userCredential;
     try {
       userCredential = await AuthRepository.signIn(email, password);
@@ -59,8 +81,7 @@ class AuthService {
   }
 
   /// Registriert den Benutzer
-
-  static Future<bool> register(final String email, final String password,
+  Future<bool> register(final String email, final String password,
       final String username, final String name) async {
     var url = Uri.https('openmask.fabianmild.dev', '/api/notauth/register');
     try {
@@ -84,8 +105,8 @@ class AuthService {
     }
   }
 
-  static Future<bool> registerFirebase(final String email,
-      final String password, final String username, final String name) async {
+  Future<bool> registerFirebase(final String email, final String password,
+      final String username, final String name) async {
     try {
       // Benutzer erstellen
       UserCredential userCredential =
@@ -108,7 +129,7 @@ class AuthService {
     }
   }
 
-  static Future<void> deleteAccount(BuildContext context) async {
+  Future<void> deleteAccount(BuildContext context) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {

@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_mask/data/services/account_service.dart';
 import 'package:open_mask/ui/widgets/logout_button.dart';
-import 'package:open_mask/ui/widgets/navigation_bar.dart';
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
   static const routePath = '/settings';
 
-  const SettingsScreen({super.key});
+  /// Gibt den Index des Settings-Tabs für das Shell-Routing an.
+  static const int settingsBranchIndex = 2;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -90,8 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar:
-          const CustomNavigationBar(currentRoutePath: SettingsScreen.routePath),
     );
   }
 

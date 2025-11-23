@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 
 import '../screens/login_screen.dart';
@@ -37,8 +38,9 @@ class LogoutButton extends StatelessWidget {
     await FirebaseAuth.instance.signOut();
     SnackBarService.showMessage("Erfolgreich ausgeloggt");
 
+    await AuthService.instance.logout();
     // Zum Login-Screen navigieren
-    context.pushReplacement(LoginScreen.routePath);
+    context.go(LoginScreen.routePath);
   }
 
   @override

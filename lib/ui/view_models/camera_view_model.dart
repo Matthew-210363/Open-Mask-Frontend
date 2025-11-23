@@ -24,7 +24,6 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
         faceDetectionService =
             Provider.of<FaceDetectionService>(context, listen: false) {
     WidgetsBinding.instance.addObserver(this);
-    initialize();
   }
 
   /// Context, wo im Widget Tree sich [CameraScreen] befindet.
@@ -47,14 +46,20 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
   /// Service zur Verwaltung der Kamerafunktionen.
   final CameraService cameraService;
 
-  /// Gibt an, ob das View-Model initialisiert wurde und die Kamera gerade läuft.
-  bool _initializedAndLive = false;
+  /// Gibt an, ob die Kamera gerade läuft.
+  bool _cameraLive = false;
+
+  /// Gibt an, ob das View-Model initialisiert wurde.
+  bool _initialized = false;
 
   /// Gibt an, ob die Kamera gewechselt wird.
   bool _changingCamera = false;
 
-  /// Gibt an, ob das View-Model initialisiert wurde und die Kamera gerade läuft.
-  bool get initializedAndLive => _initializedAndLive;
+  /// Gibt an, ob die Kamera gerade läuft.
+  bool get cameraLive => _cameraLive;
+
+  /// Gibt an, ob das View-Model initialisiert wurde.
+  bool get initialized => _initialized;
 
   /// Gibt an, ob die Kamera gewechselt wird.
   bool get changingCamera => _changingCamera;
@@ -66,13 +71,19 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
   /// Gibt an, ob die Seite sichtbar wird und wird in [CameraScreen] gesetzt.
   bool pageVisible = false;
 
-  /// Lädt die Filter. Initialisiert die Kamera und Gesichtserkennung über [initializeCamera].
+  /// Lädt die Filter. Initialisiert die Kamera und startet die Gesichtserkennung über [initializeCamera]. <br>
+  /// Falls die Initialisierung bereits erfolgt ist ([initialized] == true), wird nur [initializeCamera] ausgeführt.
   Future<void> initialize() async {
-    _initializedAndLive = false;
+    if (initialized) {
+      if (!cameraLive) initializeCamera();
+      return;
+    }
+    _cameraLive = false;
 
     await _loadFilter();
 
     await initializeCamera();
+    _initialized = true;
 
     notifyListeners();
   }
@@ -122,29 +133,31 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Initialisiert die Kamera und Gesichtserkennung.
   Future<void> initializeCamera() async {
-    _initializedAndLive = false;
+    _cameraLive = false;
     await faceDetectionService.initialize();
     cameraService.onImage = faceDetectionService.processImage;
     await cameraService.initialize();
-    if (cameraService.camera == null) {}
-    _initializedAndLive = true;
+    if (cameraService.camera == null) {
+      return;
+    }
+    _cameraLive = true;
     notifyListeners();
   }
 
   /// Startet die Kamera und Gesichtserkennung.
   Future<void> startCamera() async {
-    _initializedAndLive = false;
+    _cameraLive = false;
     notifyListeners();
     await faceDetectionService.initialize();
     await cameraService.startCamera();
-    _initializedAndLive = true;
+    _cameraLive = true;
 
     notifyListeners();
   }
 
   /// Stoppt die Kamera und Gesichtserkennung.
   Future<void> stopCamera() async {
-    _initializedAndLive = false;
+    _cameraLive = false;
     notifyListeners();
     await cameraService.stopCamera();
     await faceDetectionService.stopDetection();
@@ -174,16 +187,19 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(final AppLifecycleState state) {
+    if (!pageVisible) {
+      return;
+    }
     if (state == AppLifecycleState.paused) {
       stopCamera();
-    } else if (state == AppLifecycleState.resumed && pageVisible) {
+    } else if (state == AppLifecycleState.resumed) {
       startCamera(); // neu starten
     }
   }
 
   @override
   void dispose() {
-    _initializedAndLive = false;
+    _cameraLive = false;
     pageVisible = false;
     WidgetsBinding.instance.removeObserver(this);
     cameraService.stopCamera();

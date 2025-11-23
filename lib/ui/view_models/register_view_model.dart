@@ -8,7 +8,8 @@ class RegisterViewModel extends ChangeNotifier {
 
   Future<void> register(final String email, final String password,
       final String username, final String name) async {
-    _isRegistered = await AuthService.register(email, password, username, name);
+    _isRegistered =
+        await AuthService.instance.register(email, password, username, name);
 
     notifyListeners();
   }
