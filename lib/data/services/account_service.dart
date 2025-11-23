@@ -1,19 +1,15 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
-import 'package:open_mask/data/repositories/auth_repository.dart';
+import 'package:open_mask/data/model/user.dart' as om_user;
 import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/ui/widgets/form_header_text.dart';
-import 'package:open_mask/data/model/user.dart' as ATMUser;
 
-class AccountService{
-
-  static ATMUser.User? user;
+class AccountService {
+  static om_user.User? user;
 
   static Future<void> editName(final BuildContext context) async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -25,7 +21,7 @@ class AccountService{
     String userId = user.uid;
 
     DocumentSnapshot userDoc =
-    await FirebaseFirestore.instance.collection('User').doc(userId).get();
+        await FirebaseFirestore.instance.collection('User').doc(userId).get();
 
     if (!userDoc.exists) {
       SnackBarService.showMessage('Benutzerdaten nicht gefunden!');
@@ -34,7 +30,7 @@ class AccountService{
 
     String currentName = userDoc['name'] ?? '';
     TextEditingController nameController =
-    TextEditingController(text: currentName);
+        TextEditingController(text: currentName);
 
     showDialog(
       context: context,
@@ -47,7 +43,7 @@ class AccountService{
               TextField(
                 controller: nameController,
                 decoration:
-                const InputDecoration(labelText: 'Neuen Namen eingeben'),
+                    const InputDecoration(labelText: 'Neuen Namen eingeben'),
               ),
             ],
           ),
@@ -86,7 +82,7 @@ class AccountService{
     String userId = user.uid;
 
     DocumentSnapshot userDoc =
-    await FirebaseFirestore.instance.collection("User").doc(userId).get();
+        await FirebaseFirestore.instance.collection("User").doc(userId).get();
 
     if (!userDoc.exists) {
       SnackBarService.showMessage("Benutzerdaten nicht gefunden!");
@@ -95,7 +91,7 @@ class AccountService{
 
     String currentUsername = userDoc["username"] ?? "";
     TextEditingController usernameController =
-    TextEditingController(text: currentUsername);
+        TextEditingController(text: currentUsername);
 
     showDialog(
       context: context,
@@ -108,7 +104,7 @@ class AccountService{
               TextField(
                 controller: usernameController,
                 decoration:
-                InputDecoration(labelText: "Neuen Benutzernamen eingeben"),
+                    InputDecoration(labelText: "Neuen Benutzernamen eingeben"),
               ),
             ],
           ),
@@ -238,8 +234,8 @@ class AccountService{
                   decoration: InputDecoration(labelText: "E-Mail-Adresse"),
                   validator: (value) {
                     return (value == null ||
-                        value.isEmpty ||
-                        !value.contains('@'))
+                            value.isEmpty ||
+                            !value.contains('@'))
                         ? 'Bitte gültige E-Mail eingeben'
                         : null;
                     // TODO: löschen (man sollte nicht angemeldet sein müssen)
@@ -417,8 +413,6 @@ class AccountService{
     return null;
   }
 
-
-
   static Future<void> deleteAccount(BuildContext context) async {
     try {
       User? user = FirebaseAuth.instance.currentUser as User?;
@@ -455,9 +449,4 @@ class AccountService{
       }
     }
   }
-
-
-
-
 }
-

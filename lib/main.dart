@@ -1,8 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/data/services/camera_service.dart';
 import 'package:open_mask/data/services/face_detection_service.dart';
+import 'package:open_mask/routing/active_branch_notifier.dart';
 import 'package:open_mask/routing/routes.dart';
+import 'package:open_mask/ui/screens/camera_screen.dart';
+import 'package:open_mask/ui/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'data/services/automatic_login_service.dart';
@@ -18,6 +23,7 @@ void main() async {
   // TODO: Andere Services zum Provider hinzufügen
   final faceDetectionService = FaceDetectionService();
   final cameraService = CameraService();
+  final auth = AuthService.instance;
   AutomaticLoginService.autoLogin();
 
   runApp(
@@ -26,6 +32,9 @@ void main() async {
         ChangeNotifierProvider<FaceDetectionService>.value(
             value: faceDetectionService),
         Provider<CameraService>.value(value: cameraService),
+        ValueListenableProvider<int>.value(
+            value: ActiveBranchNotifier.instance),
+        ChangeNotifierProvider<AuthService>.value(value: auth)
       ],
       child: const OpenMask(useFirebase: true),
     ),
@@ -44,7 +53,21 @@ class OpenMask extends StatelessWidget {
     if (!useFirebase) {
       return const MaterialApp(title: 'Test', home: PlaceholderHomeScreen());
     }
+    return Consumer<AuthService>(
+      builder: (final context, final auth, final _) {
+        final router = GoRouter(
+          navigatorKey: notAuthNavigatorKey,
+          initialLocation:
+              auth.loggedIn ? CameraScreen.routePath : LoginScreen.routePath,
+          routes: auth.loggedIn ? authRoutes : notAuthRoutes,
+        );
 
+        return _materialApp(router);
+      },
+    );
+  }
+
+  MaterialApp _materialApp(final GoRouter router) {
     return MaterialApp.router(
       title: 'Open-Mask',
       theme: ThemeData(
