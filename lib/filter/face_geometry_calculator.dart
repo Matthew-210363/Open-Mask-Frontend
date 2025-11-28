@@ -50,7 +50,7 @@ class FaceGeometryCalculator {
   /// Die Höhe des Canvas (übernommen von der [canvasSize]).
   late double canvasHeight;
 
-  /// Transformiert den angegebennen [point] unter Berücksichtigung von Skalierung und eventuell Spiegelung. <br>
+  /// Transformiert den angegebenen [point] unter Berücksichtigung von Skalierung und eventuell Spiegelung. <br>
   /// Liefert ein [Offset] zurück.
   Offset transformPoint(final Point<int> point) {
     double x = point.x * scaleX;
@@ -61,6 +61,16 @@ class FaceGeometryCalculator {
     }
     //print('transformPoint($point) => ($x|$y)');
     return Offset(x, y);
+  }
+
+  /// Transformiert die angegeben [points] unter Berücksichtigung von Skalierung und eventuell Spiegelung. <br>
+  /// Liefert eine Liste der transformierten Punkte (als [Offset]) zurück.
+  List<Offset> transformPoints(final List<Point<int>> points) {
+    List<Offset> pointsAsOffsets = [];
+    for (final Point<int> point in points) {
+      pointsAsOffsets.add(transformPoint(point));
+    }
+    return pointsAsOffsets;
   }
 
   /// Transformiert das angegebene [offset] passend zur Skalierung ([scaleX]|[scaleY]) und eventueller Spiegelung ([isFrontCamera]).

@@ -30,15 +30,29 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
   final BuildContext context;
 
   // TODO: Über Settings steuern
-  /// Gibt an, ob Tracking-Markierungen angezeigt werden sollen.
-  final bool showMarkings = true;
+  /// Gibt an, ob überhaupt Tracking-Markierungen angezeigt werden sollen.
+  bool _showMarkings = true;
+
+  /// Gibt an, ob überhaupt Tracking-Markierungen angezeigt werden sollen.
+  bool get showMarkings => _showMarkings;
+
+  /// Gibt an, ob die Gesichtsbox angezeigt werden soll.
+  bool _showFaceBox = true;
+
+  /// Gibt an, ob die Gesichtsbox angezeigt werden soll.
+  bool get showFaceBox => _showFaceBox;
 
   /// Gibt an, ob die Landmarken angezeigt werden können.
-  final bool showLandmarks = true;
+  bool _showLandmarks = true;
+
+  /// Gibt an, ob die Landmarken angezeigt werden können.
+  bool get showLandmarks => _showLandmarks;
 
   /// Gibt an, ob Gesichtskonturen gezeigt werden sollen.
-  final bool showContours =
-      false; // TODO: in Settings exportieren, Markierungen dafür erstellen und bei Deaktivierung gar nicht suchen.
+  bool _showContours = true;
+
+  /// Gibt an, ob Gesichtskonturen gezeigt werden sollen.
+  bool get showContours => _showContours;
 
   /// Service zur Verwaltung der Gesichtserkennung.
   final FaceDetectionService faceDetectionService;
@@ -67,6 +81,12 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
   // TODO: Filter auswählen
   /// Aktuell ausgewählter Filter.
   IFilter? filter;
+
+  /// Gibt an, ob der Filter angezeigt werden soll.
+  bool _filterActive = true;
+
+  /// Gibt an, ob der Filter angezeigt werden soll.
+  bool get filterActive => _filterActive;
 
   /// Gibt an, ob die Seite sichtbar wird und wird in [CameraScreen] gesetzt.
   bool pageVisible = false;
@@ -184,6 +204,36 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
     await cameraService.switchLiveCamera();
     _changingCamera = false;
+    notifyListeners();
+  }
+
+  /// Schaltet den Filter um ([filterActive]). Wenn der Filter eingeschaltet ist, wird er ausgeschaltet und umgekehrt eingeschaltet.
+  void switchFilterActive() {
+    _filterActive = !_filterActive;
+    notifyListeners();
+  }
+
+  /// Schaltet die Gesichtsmarkierungen um ([showMarkings]). Wenn diese eingeschaltet sind, werden sie ausgeschaltet und umgekehrt eingeschaltet.
+  void switchShowMarkings() {
+    _showMarkings = !_showMarkings;
+    notifyListeners();
+  }
+
+  /// Schaltet die Gesichtsbox um ([showFaceBox]). Wenn diese eingeschaltet sind, werden sie ausgeschaltet und umgekehrt eingeschaltet.
+  void switchShowFaceBox() {
+    _showFaceBox = !_showFaceBox;
+    notifyListeners();
+  }
+
+  /// Schaltet die Landmarken um ([showLandmarks]). Wenn diese eingeschaltet sind, werden sie ausgeschaltet und umgekehrt eingeschaltet.
+  void switchShowLandmarks() {
+    _showLandmarks = !_showLandmarks;
+    notifyListeners();
+  }
+
+  /// Schaltet die Gesichtskonturen um ([showContours]). Wenn diese eingeschaltet sind, werden sie ausgeschaltet und umgekehrt eingeschaltet.
+  void switchShowContours() {
+    _showContours = !_showContours;
     notifyListeners();
   }
 

@@ -6,6 +6,7 @@ import 'package:open_mask/ui/view_models/camera_view_model.dart';
 import 'package:open_mask/ui/views/face_markings_view.dart';
 import 'package:open_mask/ui/views/filter_view.dart';
 import 'package:open_mask/ui/widgets/camera_shutter_button.dart';
+import 'package:open_mask/ui/widgets/face_markings_list_tile.dart';
 import 'package:open_mask/ui/widgets/gallery_popup.dart';
 import 'package:provider/provider.dart';
 
@@ -34,9 +35,14 @@ class CameraView extends StatelessWidget {
           ),
           Center(
             child: FaceMarkingsView(
-                showMarkings: vm.showMarkings, showLandmarks: vm.showLandmarks),
+              showMarkings: vm.showMarkings,
+              showFaceBox: vm.showFaceBox,
+              showLandmarks: vm.showLandmarks,
+              showContours: vm.showContours,
+            ),
           ),
-          if (vm.filter != null) Center(child: FilterView(vm.filter!)),
+          if (vm.filter != null && vm.filterActive)
+            Center(child: FilterView(vm.filter!)),
 
           // --- Buttons Overlay ---
           Positioned(
@@ -48,14 +54,15 @@ class CameraView extends StatelessWidget {
               children: [
                 // Linker Button
                 GestureDetector(
-                    onTap: () => _openGalleryFilterSelection(context, vm),
+                    onTap: () => _openOtherOptionsSelection(context, vm),
                     child: Icon(Icons.photo_library,
                         color: ButtonTheme.of(context).colorScheme?.primary,
                         size: 28)),
 
-                // TODO: ausgewählten Filter anzeigen
+                // TODO: ausgewählten Filter anzeigen & Filter auswählen
                 // Auslöse-Button
-                CameraShutterButton(onTap: vm.takePicture),
+                CameraShutterButton(
+                    onTap: vm.takePicture, onLongPress: vm.switchFilterActive),
 
                 // Rechter Button
                 GestureDetector(
@@ -71,9 +78,8 @@ class CameraView extends StatelessWidget {
     );
   }
 
-  // TODO: Filterauswahl und Fotogalerie einbinden
-  /// Öffnet eine Auswahl, mit der man entweder zur Filterauswahl oder zu den gemachten Fotos weiter navigieren kann.
-  void _openGalleryFilterSelection(
+  /// Öffnet eine Auswahl für weitere Optionen wie zur Öffnung der Galerie von gemachten Fotos, zum Ein- und Ausschalten bestimmter Funktionen, etc.
+  void _openOtherOptionsSelection(
       final BuildContext context, final CameraViewModel vm) {
     showModalBottomSheet(
       context: context,
@@ -91,6 +97,7 @@ class CameraView extends StatelessWidget {
               title: const Text('Filter auswählen'),
               onTap: () {},
             ),
+            FaceMarkingsListTile(viewModel: vm),
           ],
         );
       },

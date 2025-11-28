@@ -1,14 +1,17 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class CameraShutterButton extends StatefulWidget {
   const CameraShutterButton({
     super.key,
     required this.onTap,
+    this.onLongPress,
     this.size = 82,
   });
 
   final double size;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   State<CameraShutterButton> createState() => _CameraShutterButtonState();
@@ -48,10 +51,18 @@ class _CameraShutterButtonState extends State<CameraShutterButton>
     widget.onTap();
   }
 
+  Future<void> _longPress() async {
+    await _controller.forward();
+    await Future.delayed(kLongPressTimeout);
+    await _controller.reverse();
+    widget.onLongPress?.call();
+  }
+
   @override
   Widget build(final BuildContext context) {
     return GestureDetector(
       onTap: _tap,
+      onLongPress: _longPress,
       child: SizedBox(
         width: widget.size,
         height: widget.size,
