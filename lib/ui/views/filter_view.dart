@@ -4,8 +4,8 @@ import 'package:open_mask/data/services/camera_service.dart';
 import 'package:open_mask/data/services/face_detection_service.dart';
 import 'package:provider/provider.dart';
 
-import '../../filter/face_filter_painter.dart';
 import '../../filter/i_filter.dart';
+import '../painter/face_filter_painter.dart';
 
 /// View, welches ein Filter-Overlay über darstellt, welches Filter mithilfe vom [FaceFilterPainter] darstellt.
 class FilterView extends StatelessWidget {
