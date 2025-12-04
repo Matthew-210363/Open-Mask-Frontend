@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:open_mask/data/model/scale.dart';
 import 'package:open_mask/data/services/camera_service.dart';
 import 'package:open_mask/data/services/face_detection_service.dart';
@@ -13,6 +17,7 @@ import 'package:open_mask/filter/i_filter.dart';
 import 'package:open_mask/filter/templates/composite_filter.dart';
 import 'package:open_mask/filter/templates/hat_filter.dart';
 import 'package:open_mask/filter/templates/mustache_filter.dart';
+import 'package:open_mask/ui/painter/face_filter_painter.dart';
 import 'package:open_mask/ui/screens/camera_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -187,11 +192,37 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Nimmt ein Foto auf und wendet, wenn nötig den aktiven Filter darauf an.
   Future<void> takePicture() async {
+    final List<Face> faces = faceDetectionService.faces;
     try {
       final takenPhoto = await cameraService.takePicture();
-      // TODO: Bildverarbeitung hier einfügen
-      // SnackBarService.showMessage('Aufgenommenes Foto: ${takenPhoto.path}'); // debug-message
-      ImageService.savePhotoToGallery(takenPhoto);
+      final String filename =
+          '${DateTime.now().millisecondsSinceEpoch.toString()}.png';
+      final File imageFile =
+          await ImageService.savePhotoToAppGallery(takenPhoto, filename);
+
+      if (filter == null ||
+          !filterActive ||
+          faceDetectionService.faceDetector == null) {
+        return;
+      }
+
+      final inputImage = InputImage.fromFile(imageFile);
+      final List<Face> faces =
+          await faceDetectionService.faceDetector!.processImage(inputImage);
+
+      final ui.Image image = await ImageService.loadUiImageFromFile(imageFile);
+
+      final imageSize = Size(image.width.toDouble(), image.height.toDouble());
+      final painter = FaceFilterPainter(
+          faces: faces,
+          imageSize: imageSize,
+          isFrontCamera: false,
+          filter: filter!);
+
+      final ui.Image editedImage = await painter.paintOnImage(image);
+
+      final File editedFile =
+          await ImageService.saveUiImageToAppGallery(editedImage, filename);
     } catch (e) {
       SnackBarService.showMessage('Error taking picture: $e');
     }
