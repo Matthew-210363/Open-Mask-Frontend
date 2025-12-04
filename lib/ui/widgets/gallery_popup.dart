@@ -12,17 +12,50 @@ class GalleryPopup extends StatelessWidget {
   /// Die Liste der darzustellenden Fotos.
   final List<File> _photos;
 
+  /// Öffnet eine Nahansicht eines Photos.
+  void _viewPhoto(final context, final index) {
+    showDialog(
+      context: context,
+      barrierColor: Theme.of(context).colorScheme.surface.withAlpha(138),
+      builder: (final context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: InteractiveViewer(
+              maxScale: 10,
+              minScale: 1,
+              child: Image.file(_photos[index]),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Baut ein Photo-Element für die Galerie.
+  Widget _buildPhotoItem(final context, final index) {
+    return GestureDetector(
+      onTap: () => _viewPhoto(context, index),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(_photos[index], fit: BoxFit.cover),
+      ),
+    );
+  }
+
   @override
   Widget build(final BuildContext context) {
     final theme = Theme.of(context);
-
     return Material(
       color: Colors.transparent,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.85,
         height: MediaQuery.of(context).size.height * 0.65,
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface, // Hintergrund aus Theme!
+          // Hintergrundfarbe aus Theme
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
@@ -35,7 +68,6 @@ class GalleryPopup extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 16),
-
             // Titel
             Text(
               'App-Galerie',
@@ -44,9 +76,7 @@ class GalleryPopup extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 16),
-
             // Gitter mit Bildern
             Expanded(
               child: Padding(
@@ -58,16 +88,10 @@ class GalleryPopup extends StatelessWidget {
                     mainAxisSpacing: 8,
                   ),
                   itemCount: _photos.length,
-                  itemBuilder: (final context, final index) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(_photos[index], fit: BoxFit.cover),
-                    );
-                  },
+                  itemBuilder: _buildPhotoItem,
                 ),
               ),
             ),
-
             // Close Button
             Padding(
               padding: const EdgeInsets.only(bottom: 12),

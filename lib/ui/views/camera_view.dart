@@ -89,7 +89,7 @@ class CameraView extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.photo),
-              title: const Text('Fotogalerie anzeigen'),
+              title: const Text('App-Galerie anzeigen'),
               onTap: () => _openGalleryPopup(context),
             ),
             ListTile(
@@ -111,7 +111,7 @@ class CameraView extends StatelessWidget {
 
     showDialog(
       context: context,
-      barrierColor: Colors.black54,
+      barrierColor: Theme.of(context).colorScheme.surface.withAlpha(138),
       // Hintergrund abdunkeln, Kamera bleibt sichtbar
       builder: (final _) => Center(
         child: GalleryPopup(photos: photos),

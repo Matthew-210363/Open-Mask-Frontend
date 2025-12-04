@@ -64,6 +64,18 @@ class ImageService {
     return bytes;
   }
 
+  /// Lädt ein Bild als [Uint8List] aus dem angegebenen [file].
+  static Future<Uint8List> loadImageFromFile(final File file) async {
+    final data = await file.readAsBytes();
+    return data;
+  }
+
+  /// Lädt ein Bild als [ui.Image] aus dem angegebenen [file].
+  static Future<ui.Image> loadUiImageFromFile(final File file) async {
+    final data = await loadImageFromFile(file);
+    return await uint8ListToUiImage(data);
+  }
+
   /// Wandelt eine [Uint8List] in ein [ui.Image] um.
   static Future<ui.Image> uint8ListToUiImage(final Uint8List data) async {
     final ui.Codec codec = await ui.instantiateImageCodec(data);
@@ -72,8 +84,9 @@ class ImageService {
   }
 
   /// Wandelt ein [ui.Image] in ein [Uint8List] um.
-  static Future<Uint8List> uiImageToUint8List(final ui.Image image) async {
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  static Future<Uint8List> uiImageToUint8List(final ui.Image image,
+      {final ui.ImageByteFormat format = ui.ImageByteFormat.png}) async {
+    final byteData = await image.toByteData(format: format);
     return byteData!.buffer.asUint8List();
   }
 
@@ -85,8 +98,8 @@ class ImageService {
     DeviceOrientation.landscapeRight: 270,
   };
 
-  /// Liefert den Galerie-Ordner zurück bzw. erstellt diesen, wenn nötig.
-  static Future<Directory> getGalleryDirectory() async {
+  /// Liefert den Galerie-Ordner der App zurück bzw. erstellt diesen, wenn nötig.
+  static Future<Directory> getAppGalleryDirectory() async {
     final dir = await getApplicationDocumentsDirectory();
     final galleryDir = Directory('${dir.path}/photos');
 
@@ -97,21 +110,31 @@ class ImageService {
     return galleryDir;
   }
 
-  /// Speichert ein aufgenommenes Foto in den Cache.
-  static Future<File> savePhotoToGallery(final XFile picture) async {
-    final dir = await getGalleryDirectory();
-    final file =
-        File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+  /// Speichert ein aufgenommenes Foto ([picture]) in die App-Galerie unter dem Namen [filename].
+  static Future<File> savePhotoToAppGallery(
+      final XFile picture, final String filename) async {
+    final dir = await getAppGalleryDirectory();
+    final file = File('${dir.path}/$filename');
     return File(picture.path).copy(file.path);
   }
 
-  /// Lädt Fotos aus dem Cache.
+  /// Speichert das übergebene [image] in die App-Galerie mit dem angegebenen [filename].
+  static Future<File> saveUiImageToAppGallery(
+      final ui.Image image, final String filename) async {
+    final dir = await getAppGalleryDirectory();
+    final File file = File('${dir.path}/$filename');
+    final Uint8List imageData = await uiImageToUint8List(image);
+    return file.writeAsBytes(imageData, flush: true);
+  }
+
+  /// Lädt Fotos aus der App-Galerie.
   static Future<List<File>> loadLocalPhotos() async {
-    final dir = await getGalleryDirectory();
+    final dir = await getAppGalleryDirectory();
     final files = Directory(dir.path)
         .listSync()
         .whereType<File>()
-        .where((final file) => file.path.endsWith('.jpg'))
+        .where((final file) =>
+            file.path.endsWith('.png') || file.path.endsWith('.jpg'))
         .toList()
       ..sort((final a, final b) => b.path.compareTo(a.path)); // neueste zuerst
 

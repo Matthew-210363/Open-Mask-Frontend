@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:open_mask/filter/face_geometry_calculator.dart';
@@ -9,7 +11,7 @@ class FaceFilterPainter extends CustomPainter {
   /// <ul>
   ///   <li>[faces] Liste der Gesichter, auf die der Filter angewandt werden soll.</li>
   ///   <li>[imageSize] Originalgröße des Bildes.</li>
-  ///   <li>[isFrontCamera] Gibt an, ob die verwendete Kamera die Frontkamera ist und das Preview daher gespiegelt ist.</li>
+  ///   <li>[isFrontCamera] Gibt an, ob die verwendete Kamera die Frontkamera ist und der Filter daher gespiegelt werden muss.</li>
   ///   <li>[filter] Der Filter, der angewandt werden soll.</li>
   /// </ul>
   FaceFilterPainter({
@@ -34,13 +36,28 @@ class FaceFilterPainter extends CustomPainter {
   /// Der Filter, der auf die Gesichter [_faces] angewendet werden soll.
   final IFilter _filter;
 
+  /// Malt den Filter auf das angegebene [image] und liefert ein neues Bild mit angewandtem Filter als [ui.Image] zurück.
+  Future<ui.Image> paintOnImage(final ui.Image image) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    final paint = Paint();
+    canvas.drawImage(image, Offset.zero, paint);
+
+    this.paint(canvas, _imageSize);
+
+    final picture = recorder.endRecording();
+    final editedImage = await picture.toImage(image.width, image.height);
+    return editedImage;
+  }
+
   @override
   void paint(final Canvas canvas, final Size size) {
-    FaceGeometryCalculator faceCoordinateTransformer = FaceGeometryCalculator(
+    FaceGeometryCalculator faceGeometryCalculator = FaceGeometryCalculator(
         imageSize: _imageSize, canvasSize: size, isFrontCamera: _isFrontCamera);
 
     for (final Face face in _faces) {
-      _filter.apply(face, canvas, faceCoordinateTransformer);
+      _filter.apply(face, canvas, faceGeometryCalculator);
     }
   }
 
