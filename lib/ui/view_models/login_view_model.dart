@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 
 class LoginViewModel extends ChangeNotifier {
   bool _isLoading = false;
