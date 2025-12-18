@@ -21,16 +21,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(final BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(),
+      create: (final _) => LoginViewModel(),
       child: Consumer<LoginViewModel>(
-        builder: (context, vm, child) {
+        builder: (final context, final vm, final child) {
           WidgetsBinding.instance.addPostFrameCallback((final _) {
             if (!vm.isLoading && vm.isLoggedIn) {
-              // TODO:
               // Shell-Router-Branch setzen, damit die Kamera direkt geladen wird
               ActiveBranchNotifier.instance.value =
                   CameraScreen.cameraBranchIndex;
-              context.go(CameraScreen.routePath);
+              context.pushReplacement(CameraScreen.routePath);
             }
           });
 

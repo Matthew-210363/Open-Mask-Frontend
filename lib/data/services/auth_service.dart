@@ -1,20 +1,18 @@
 import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:open_mask/data/repositories/auth_repository.dart';
+import 'package:open_mask/data/constants.dart';
+import 'package:open_mask/data/model/user.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 
-// TODO: Umstellen auf Java Backend
-// TODO: nicht static machen und Anmeldedaten etc. speichern
+/// Service zum registrieren und einlogen.
 class AuthService extends ChangeNotifier {
   /// Privater Konstruktor für das Singleton-Pattern.
-  AuthService._privateConstructor();
+  AuthService._internal();
 
   /// Singleton-Instanz.
-  static final AuthService instance = AuthService._privateConstructor();
+  static final AuthService instance = AuthService._internal();
 
   /// Gibt an, ob ein Benutzer eingeloggt ist.
   bool _loggedIn = false;
@@ -22,41 +20,61 @@ class AuthService extends ChangeNotifier {
   /// Gibt an, ob ein Benutzer eingeloggt ist.
   bool get loggedIn => _loggedIn;
 
+  /// Usermodel des Users.
+  User? _user;
+
+  /// Aktuell eingeloggter [User].
+  User? get user => _user;
+
   /// Meldet den Benutzer an und überprüft, ob die E-Mail verifiziert wurde. Liefert true zurück, wenn die Anmeldung erfolgreich war.
   Future<bool> login(final String email, final String password) async {
     var url = Uri.https(
-      'openmask.fabianmild.dev',
-      '/api/notauth/login',
-      {
-        'email': email,
-        'password': password,
-      },
+      apiBaseUrl,
+      '$notauth/login',
     );
     bool success = false;
     try {
-      var response = await http.get(url);
-      if (response.statusCode != 200) {
-        SnackBarService.showMessage('Email oder Passwort ist falsch!');
-        success = false;
+      var response = await http.get(
+        url,
+        headers: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 404) {
+        SnackBarService.showMessage('User existiert nicht');
+        return false;
       }
-      //SnackBarService.showMessage('Login erfolgreich!');
+      if (response.statusCode == 401) {
+        SnackBarService.showMessage('Passwort ist falsch!');
+        return false;
+      }
+
+      final Map<String, dynamic> data =
+          jsonDecode(response.body) as Map<String, dynamic>;
+
+      _user = User.fromJson(data);
       success = true;
+
+      _loggedIn = success;
+      notifyListeners();
+      return success;
     } catch (e) {
-      SnackBarService.showMessage('Error: ${e.toString()}');
-      success = false;
+      SnackBarService.showMessage('Fehler: $e');
+      return false;
     }
-    _loggedIn = success;
-    notifyListeners();
-    return success;
   }
 
   Future<bool> logout() async {
     _loggedIn = false;
+    _user = null;
     notifyListeners();
     // TODO: implement
     return !_loggedIn;
   }
 
+/*
   Future<bool> loginFirebase(final String email, final String password) async {
     UserCredential userCredential;
     try {
@@ -79,11 +97,13 @@ class AuthService extends ChangeNotifier {
         'E-Mail wurde noch nicht verifiziert! \nBitte überprüfen Sie ihren Posteingang!');
     return false;
   }
+  
+ */
 
   /// Registriert den Benutzer
   Future<bool> register(final String email, final String password,
       final String username, final String name) async {
-    var url = Uri.https('openmask.fabianmild.dev', '/api/notauth/register');
+    var url = Uri.https(apiBaseUrl, '$notauth/register');
     try {
       var response = await http.post(
         url,
@@ -104,7 +124,7 @@ class AuthService extends ChangeNotifier {
       return false;
     }
   }
-
+/*
   Future<bool> registerFirebase(final String email, final String password,
       final String username, final String name) async {
     try {
@@ -128,6 +148,8 @@ class AuthService extends ChangeNotifier {
       return false;
     }
   }
+  
+
 
   Future<void> deleteAccount(BuildContext context) async {
     try {
@@ -165,4 +187,6 @@ class AuthService extends ChangeNotifier {
       }
     }
   }
+  
+ */
 }
