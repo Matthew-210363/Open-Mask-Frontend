@@ -6,7 +6,7 @@ import 'package:open_mask/data/constants.dart';
 import 'package:open_mask/data/model/user.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 
-/// Service zum registrieren und einlogen.
+/// Service zur Durchführung von Authentifizierungsoperationen wie Registrierung und Anmeldung.
 class AuthService extends ChangeNotifier {
   /// Privater Konstruktor für das Singleton-Pattern.
   AuthService._internal();
