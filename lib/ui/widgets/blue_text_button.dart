@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 /// Blauer [ElevatedButton].
 class BlueTextButton extends StatelessWidget {
   /// Standard-Konstruktor.
+  /// <ul>
+  ///   <li>Der [text] wird in der Mitte des Knopfes dargestellt.</li>
+  ///   <li>Die Funktion [onPressed] wird aufgerufen, wenn der Knopf gedrückt wird. Wenn diese null ist, ist der Knopf deaktiviert.</li>
+  ///   <li>Der Parameter [padding] gibt das Padding des Buttons (also die Abstände des Inhalts zum Rand des Knopfes) an.</li>
+  ///   <li>Das [leadingIcon] wird, falls gesetzt, vor dem Text dargestellt.</li>
+  ///   <li>Der Parameter [stretch] gibt an, ob der Knopf die maximale verfügbare Größe verwenden soll.</li>
+  /// </ul>
   const BlueTextButton(this.text,
       {super.key,
       this.onPressed,

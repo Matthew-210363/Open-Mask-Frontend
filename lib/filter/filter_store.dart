@@ -1,7 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:open_mask/filter/i_filter.dart';
 
 /// Datenhalter-Klasse, welche globale Filterdaten speichert.
-class FilterStore {
+class FilterStore extends ChangeNotifier {
   /// Privater Konstruktor für das Singleton-Pattern.
   FilterStore._internal();
 
@@ -9,5 +10,50 @@ class FilterStore {
   static final FilterStore instance = FilterStore._internal();
 
   /// Der aktuell ausgewählte Filter.
-  IFilter? selectedFilter;
+  IFilter? _selectedFilter;
+
+  /// Alle lokalen Filter.
+  final List<IFilter> _localFilters = [];
+
+  /// Alle geladenen Community-Filter.
+  final List<IFilter> _communityFilters = [];
+
+  /// Der aktuell ausgewählte Filter.
+  IFilter? get selectedFilter => _selectedFilter;
+
+  /// Alle lokalen Filter.
+  List<IFilter> get localFilters => List.unmodifiable(_localFilters);
+
+  /// Alle geladenen Community-Filter.
+  List<IFilter> get communityFilters => List.unmodifiable(_communityFilters);
+
+  set selectedFilter(final IFilter? newSelectedFilter) {
+    if (newSelectedFilter != _selectedFilter) {
+      newSelectedFilter?.load(); // neuen Filter asynchron laden
+    }
+    _selectedFilter = newSelectedFilter;
+    notifyListeners();
+  }
+
+  /// Fügt den angegebenen [filter] zu den lokalen Filtern hinzu.
+  void addLocalFilter(final IFilter filter) {
+    _localFilters.add(filter);
+    notifyListeners();
+  }
+
+  /// Setzt die [communityFilters].
+  set communityFilters(final List<IFilter> filters) {
+    _communityFilters
+      ..clear()
+      ..addAll(filters);
+    notifyListeners();
+  }
+
+  /// Setzt den lokalen Filter-Speicher vollständig zurück und löscht alle enthaltenen Filter.
+  void clear() {
+    _selectedFilter = null;
+    _localFilters.clear();
+    _communityFilters.clear();
+    notifyListeners();
+  }
 }
