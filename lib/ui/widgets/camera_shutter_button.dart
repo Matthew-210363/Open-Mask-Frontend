@@ -7,11 +7,15 @@ class CameraShutterButton extends StatefulWidget {
     required this.onTap,
     this.onLongPress,
     this.size = 82,
+    this.child,
   });
 
   final double size;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
+
+  /// Gibt ein Widget an, welches über dem Button angezeigt werden soll.
+  final Widget? child;
 
   @override
   State<CameraShutterButton> createState() => _CameraShutterButtonState();
@@ -101,6 +105,7 @@ class _CameraShutterButtonState extends State<CameraShutterButton>
                 );
               },
             ),
+            if (widget.child != null) ...[widget.child!],
           ],
         ),
       ),

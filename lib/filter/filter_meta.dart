@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:open_mask/data/model/user.dart';
 
 /// Enthält alle Metadaten eines Filters.
@@ -9,7 +10,9 @@ class FilterMeta {
       this.createdBy,
       this.createdAt,
       this.updatedAt,
-      this.isPublic = false});
+      this.isPublic = false,
+      final Widget? icon})
+      : _icon = icon;
 
   /// Factory-Methode zur JSON‑Deserialisierung.
   factory FilterMeta.fromJson(final Map<String, dynamic> json) => FilterMeta(
@@ -43,6 +46,17 @@ class FilterMeta {
 
   /// Veröffentlichungsstatus, welcher aussagt, ob der Filter veröffentlich worden ist oder nicht.
   bool isPublic;
+
+  /// Icon des Filters als [Widget] (standardmäßig null).
+  Widget? _icon;
+
+  /// Icon des Filters als [Widget]. Falls dieses noch nicht gesetzt wurde, wird das App-Logo benutzt.
+  Widget get icon =>
+      _icon ?? Image.asset('assets/images/icons/app-icon_round.png');
+
+  set icon(final Widget newIcon) {
+    _icon = newIcon;
+  }
 
   /// Methode zur JSON‑Serialisierung für die Backend-Kommunikation.
   Map<String, dynamic> toJSON() => {

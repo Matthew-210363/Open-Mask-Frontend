@@ -1,5 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:open_mask/filter/filter_store.dart';
+import 'package:open_mask/filter/templates/filter.dart';
 import 'package:open_mask/ui/screens/camera_screen.dart';
 import 'package:open_mask/ui/screens/filter_image_processing_screen.dart';
 import 'package:open_mask/ui/screens/gallery_screen.dart';
@@ -8,6 +10,8 @@ import 'package:open_mask/ui/views/face_markings_view.dart';
 import 'package:open_mask/ui/views/filter_view.dart';
 import 'package:open_mask/ui/widgets/camera_shutter_button.dart';
 import 'package:open_mask/ui/widgets/face_markings_list_tile.dart';
+import 'package:open_mask/ui/widgets/filter_list_tile.dart';
+import 'package:open_mask/ui/widgets/filter_selection_popup.dart';
 import 'package:provider/provider.dart';
 
 /// View, welches die UI für die Kameraanzeige selbst enthält und für [CameraScreen] bereitstellt. Nutzt [CameraViewModel] für Logik.
@@ -82,7 +86,38 @@ class CameraView extends StatelessWidget {
                 // TODO: ausgewählten Filter anzeigen & Filter auswählen
                 // Auslöse-Button
                 CameraShutterButton(
-                    onTap: vm.takePicture, onLongPress: vm.switchFilterActive),
+                  onTap: vm.takePicture,
+                  onLongPress: () {
+                    if (!vm.filterActive) {
+                      vm.switchFilterActive();
+                    }
+                    showDialog(
+                        context: context,
+                        barrierColor: Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withAlpha(180),
+                        builder: (final context) {
+                          return const FilterSelectionPopup();
+                        });
+                  },
+                  child: FilterStore.instance.selectedFilter == null
+                      ? null
+                      : Opacity(
+                          opacity: vm.filterActive ? 1.0 : 0.4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            child: SizedBox(
+                              width: 45,
+                              height: 45,
+                              child: (FilterStore.instance.selectedFilter
+                                      as Filter)
+                                  .meta
+                                  .icon,
+                            ),
+                          ),
+                        ),
+                ),
 
                 // Rechter Button
                 GestureDetector(
@@ -117,14 +152,7 @@ class CameraView extends StatelessWidget {
               onTap: () => navigateTo(
                   '${CameraScreen.routePath}${GalleryScreen.routePath}'),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.photo_filter,
-                color: theme.iconTheme.color,
-              ),
-              title: const Text('Filter auswählen'),
-              onTap: () {},
-            ),
+            FilterListTile(viewModel: vm),
             ListTile(
               leading: Icon(
                 Icons.filter,

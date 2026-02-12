@@ -7,7 +7,7 @@ class FaceMarkingsListTile extends StatefulWidget {
   /// [viewModel] dient zum Aufruf von Funktionen zum Ein- und Ausschalten der Tracking-Markierung, sowie zum Abrufen ihres Zustands.
   const FaceMarkingsListTile({super.key, required this.viewModel});
 
-  /// Dient zum Aufruf von Funktionen zum Ein- und Ausschalten der Tracking-Markierung, sowie zum Abrufen ihres Zustands.
+  /// Dient zum Aufrufen von Funktionen zum Ein- und Ausschalten der Tracking-Markierung, sowie zum Abrufen ihres Zustands.
   final CameraViewModel viewModel;
 
   @override
@@ -16,6 +16,7 @@ class FaceMarkingsListTile extends StatefulWidget {
 
 /// [State] des [FaceMarkingsListTile].
 class _FaceMarkingsListTileState extends State<FaceMarkingsListTile> {
+  /// Dient dazu, [setState] bei Änderungen des Zustands aufzurufen.
   late void Function() listener;
 
   @override

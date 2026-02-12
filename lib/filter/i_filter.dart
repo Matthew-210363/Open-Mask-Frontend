@@ -5,7 +5,7 @@ import 'package:open_mask/filter/face_geometry_calculator.dart';
 
 import 'configs/filter_config.dart';
 
-/// Inteface für alle Filter.
+/// Interface für alle Filter.
 /// Definiert gemeinsame Operationen für die Anwendung und Serialisierung von Filtern.
 abstract class IFilter {
   /// Wendet den Filter auf das angegebene Gesicht an.

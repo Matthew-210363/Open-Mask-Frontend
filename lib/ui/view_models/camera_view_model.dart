@@ -16,6 +16,7 @@ import 'package:open_mask/filter/filter_type.dart';
 import 'package:open_mask/filter/i_filter.dart';
 import 'package:open_mask/filter/templates/composite_filter.dart';
 import 'package:open_mask/filter/templates/hat_filter.dart';
+import 'package:open_mask/filter/templates/mask_filter.dart' as om_mf;
 import 'package:open_mask/filter/templates/mustache_filter.dart';
 import 'package:open_mask/ui/screens/camera_screen.dart';
 import 'package:open_mask/ui/views/camera_view.dart';
@@ -30,6 +31,7 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
         faceDetectionService =
             Provider.of<FaceDetectionService>(context, listen: false) {
     WidgetsBinding.instance.addObserver(this);
+    FilterStore.instance.addListener(notifyListeners);
   }
 
   /// Context, wo im Widget Tree sich [CameraScreen] befindet.
@@ -122,12 +124,14 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Lädt den Filter in die lokale Variable [filter] und startet das asynchrone Laden der externen Ressourcen mit [IFilter.load].
   Future<void> loadFilter() async {
-    // TODO: ersetzen durch Filterauswahl, Filter sollen in der Filter Factory oder im Filter-Editor gebaut werden.
+    // TODO: Vordefinierte Filter als Assets speichern
     FilterConfig mustacheConfig = FilterConfig(
         scale: MustacheFilter.defaultScale,
         offset: MustacheFilter.defaultOffset);
     FilterMeta meta = FilterMeta(
-        name: 'Mustache Filter 1', description: 'Oberer Schnurrbart');
+        name: 'Mustache Filter 1',
+        description: 'Oberer Schnurrbart',
+        icon: Image.asset(MustacheFilter.defaultAssetPath));
     FilterImage mustacheImage = FilterImage(
         filename: MustacheFilter.defaultImageFilename,
         assetPath: MustacheFilter.defaultAssetPath);
@@ -149,7 +153,19 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
     HatFilter hatFilter = FilterFactory.create(FilterType.hat) as HatFilter;
     hatFilter.meta.name = 'Hat Filter';
     hatFilter.meta.description = 'Hut-Filter';
+    hatFilter.meta.icon = Image.asset(HatFilter.defaultAssetPath);
     hatFilter.config.scale = const Scale(1.3, 1.2);
+
+    om_mf.MaskFilter maskFilter = ((FilterFactory.create(FilterType.mask)
+      ..config?.opacity = 0.5) as om_mf.MaskFilter);
+    maskFilter.meta.name = 'Transparente Maske';
+    maskFilter.meta.icon = Opacity(
+        opacity: 0.5, child: Image.asset(om_mf.MaskFilter.defaultAssetPath));
+
+    FilterStore.instance.addLocalFilter(mustacheFilter);
+    FilterStore.instance.addLocalFilter(mustacheFilter2);
+    FilterStore.instance.addLocalFilter(hatFilter);
+    FilterStore.instance.addLocalFilter(maskFilter);
 
     FilterMeta metaComposite = FilterMeta(
         name: 'Hut-Schnurrbart-Filter', description: 'Schnurrbart und Hut');
@@ -158,9 +174,30 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
     filterList.add(mustacheFilter);
     filterList.add(mustacheFilter2);
     filterList.add(hatFilter);
-    filterList
-        .add(FilterFactory.create(FilterType.mask)..config?.opacity = 0.5);
+    filterList.add(maskFilter);
+
+    FilterStore.instance.addLocalFilter(compositeFilter);
+
     FilterStore.instance.selectedFilter = compositeFilter;
+
+    // Beispiele für eigene Filter für die Filterauswahl
+    // TODO: ersetzen durch Filterwerkstatt
+    om_mf.MaskFilter ownMaskFilter =
+        ((FilterFactory.create(FilterType.mask, isCreatedByUser: true))
+            as om_mf.MaskFilter);
+    ownMaskFilter.meta.name = 'Eigene Maske';
+    ownMaskFilter.meta.icon = Image.asset(om_mf.MaskFilter.defaultAssetPath);
+    CompositeFilter ownCompositeFilter =
+        FilterFactory.create(FilterType.composite, isCreatedByUser: true)
+            as CompositeFilter;
+    ownCompositeFilter.meta.name = 'Hut & Maske';
+    ownCompositeFilter.meta.description =
+        'Beispiel für einen eigenen Composite-Filter mit Hut & Maske';
+    ownCompositeFilter.filterList.add(ownMaskFilter);
+    ownCompositeFilter.filterList.add(hatFilter);
+    FilterStore.instance.addLocalFilter(ownMaskFilter);
+    FilterStore.instance.addLocalFilter(ownCompositeFilter);
+
     // Laden der externen Resourcen asynchron starten, damit die Kamera nicht blockiert wird.
     filter?.load();
   }

@@ -1,3 +1,4 @@
+import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/filter/configs/filter_config.dart';
 import 'package:open_mask/filter/filter_image.dart';
 import 'package:open_mask/filter/filter_meta.dart';
@@ -12,13 +13,18 @@ import 'i_filter.dart';
 /// Factory-Klasse zum Erstellen von konkreten Filter-Instanzen.
 class FilterFactory {
   /// Erzeugt einen neuen Filter mit dem passenden Typ.
-  static IFilter create(final FilterType type) {
+  static IFilter create(final FilterType type,
+      {final bool isCreatedByUser = false}) {
+    FilterMeta meta = isCreatedByUser
+        ? FilterMeta(
+            createdBy: AuthService.instance.user, createdAt: DateTime.now())
+        : FilterMeta();
     switch (type) {
       case FilterType.composite:
-        return CompositeFilter(meta: FilterMeta());
+        return CompositeFilter(meta: meta);
       case FilterType.mustache:
         return MustacheFilter(
-            meta: FilterMeta(),
+            meta: meta,
             config: FilterConfig(
                 offset: MustacheFilter.defaultOffset,
                 scale: MustacheFilter.defaultScale),
@@ -27,14 +33,14 @@ class FilterFactory {
                 assetPath: MustacheFilter.defaultAssetPath));
       case FilterType.hat:
         return HatFilter(
-            meta: FilterMeta(),
+            meta: meta,
             config: FilterConfig(),
             filterImage: FilterImage(
                 filename: HatFilter.defaultImageFilename,
                 assetPath: HatFilter.defaultAssetPath));
       case FilterType.mask:
         return MaskFilter(
-            meta: FilterMeta(),
+            meta: meta,
             config: FilterConfig(offset: MaskFilter.defaultOffset),
             filterImage: FilterImage(
                 filename: MaskFilter.defaultImageFilename,

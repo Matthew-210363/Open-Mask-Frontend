@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:open_mask/data/constants.dart';
 import 'package:open_mask/data/model/user.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:open_mask/filter/filter_store.dart';
 
 /// Service zur Durchführung von Authentifizierungsoperationen wie Registrierung und Anmeldung.
 class AuthService extends ChangeNotifier {
@@ -74,6 +75,7 @@ class AuthService extends ChangeNotifier {
   Future<bool> logout() async {
     _loggedIn = false;
     _user = null;
+    FilterStore.instance.clear();
     notifyListeners();
     // TODO: implement backend communication
     return !_loggedIn;
