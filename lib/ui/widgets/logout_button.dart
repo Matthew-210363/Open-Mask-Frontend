@@ -1,32 +1,30 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/services/auth_service.dart';
-import 'package:open_mask/data/services/snackbar_service.dart';
 
 import '../screens/login_screen.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(final BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
-          title: Text("Logout"),
-          content: Text("Möchtest du dich wirklich ausloggen?"),
+          title: const Text('Logout'),
+          content: const Text('Möchtest du dich wirklich ausloggen?'),
           actions: [
             TextButton(
               onPressed: () => context.pop(), // Dialog schließen
-              child: Text("Abbrechen"),
+              child: const Text('Abbrechen'),
             ),
             TextButton(
               onPressed: () {
                 _logout(context);
                 context.pop(); // Dialog schließen
               },
-              child: Text("Ja, ausloggen"),
+              child: const Text('Ja, ausloggen'),
             ),
           ],
         );
@@ -34,20 +32,19 @@ class LogoutButton extends StatelessWidget {
     );
   }
 
-  void _logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    SnackBarService.showMessage("Erfolgreich ausgeloggt");
-
+  Future<void> _logout(final BuildContext context) async {
     await AuthService.instance.logout();
     // Zum Login-Screen navigieren
-    context.go(LoginScreen.routePath);
+    if (context.mounted) {
+      context.go(LoginScreen.routePath);
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ElevatedButton(
       onPressed: () => _showLogoutDialog(context),
-      child: Text("Logout"),
+      child: const Text('Logout'),
     );
   }
 }
