@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/services/auth_service.dart';
@@ -18,8 +17,6 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(); // Initialisiert Firebase
-
   // TODO: Andere Services zum Provider hinzufügen
   final faceDetectionService = FaceDetectionService();
   final cameraService = CameraService();
@@ -36,23 +33,17 @@ void main() async {
             value: ActiveBranchNotifier.instance),
         ChangeNotifierProvider<AuthService>.value(value: auth)
       ],
-      child: const OpenMask(useFirebase: true),
+      child: const OpenMask(),
     ),
   );
 }
 
 class OpenMask extends StatelessWidget {
-  const OpenMask({super.key, required this.useFirebase});
-
-  // um die Nutzung von Firebase für den Smoke-Test zu umgehen
-  final bool useFirebase;
+  const OpenMask({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(final BuildContext context) {
-    if (!useFirebase) {
-      return const MaterialApp(title: 'Test', home: PlaceholderHomeScreen());
-    }
     return Consumer<AuthService>(
       builder: (final context, final auth, final _) {
         final router = GoRouter(

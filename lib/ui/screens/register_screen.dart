@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mask/data/services/auth_service.dart';
 
-import '../../data/services/snackbar_service.dart';
 import '../widgets/form_header_text.dart';
 import '../widgets/stretched_button.dart';
 
@@ -40,11 +38,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     String username = _usernameController.text.trim();
-    if (!await _isUsernameAvailable(username)) {
-      SnackBarService.showMessage('Benutzername vergeben!');
-      return;
-    }
-
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
     String name = _nameController.text.trim();
@@ -59,14 +52,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       _isLoading = false;
     });
-  }
-
-  Future<bool> _isUsernameAvailable(String username) async {
-    final result = await FirebaseFirestore.instance
-        .collection('User')
-        .where('username', isEqualTo: username)
-        .get();
-    return result.docs.isEmpty;
   }
 
   @override

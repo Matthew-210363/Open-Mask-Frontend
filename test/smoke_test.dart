@@ -12,7 +12,7 @@ import 'package:open_mask/main.dart';
 void main() {
   testWidgets('Smoke Test: App starts without crashing',
       (final WidgetTester tester) async {
-    await tester.pumpWidget(const OpenMask(useFirebase: false));
+    await tester.pumpWidget(const OpenMask());
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
