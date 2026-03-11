@@ -54,6 +54,15 @@ class CompositeFilter extends Filter {
     return _filterList.remove(filter);
   }
 
+  /// Verschiebt den Teilfilter am [oldIndex] zum [newIndex].
+  void reorderFilter(final int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    IFilter item = _filterList.removeAt(oldIndex);
+    _filterList.insert(newIndex, item);
+  }
+
   @override
   void apply(
       final Face face, final Canvas canvas, final FaceGeometryCalculator fgc) {

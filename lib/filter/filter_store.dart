@@ -22,9 +22,6 @@ class FilterStore extends ChangeNotifier {
   /// Kann sowohl [currentlyEditedFilter] als auch ein Teil eines [CompositeFilter] sein.
   IFilter? _selectedEditedFilter;
 
-  /// Originale Referenz des [currentlyEditedFilter], welche zum Speichern dessen benutzt wird.
-  IFilter? _savedEditedFilter;
-
   /// Alle lokalen Filter.
   final List<IFilter> _localFilters = [];
 
