@@ -12,6 +12,6 @@ class ActiveBranchNotifier extends ValueNotifier<int> {
   /// Privater Konstruktor für das Singleton-Pattern. Erstellt einen neuen Notifier mit dem Startwert des Kamera-Branches.
   ActiveBranchNotifier._internal() : super(CameraScreen.cameraBranchIndex);
 
-  /// Singleton-Instanz des Notifiers. <br>
+  /// Singleton-Instanz des Notifiers.
   static final ActiveBranchNotifier instance = ActiveBranchNotifier._internal();
 }

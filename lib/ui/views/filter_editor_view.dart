@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:open_mask/filter/filter_store.dart';
+import 'package:open_mask/filter/templates/composite_filter.dart';
 import 'package:open_mask/filter/templates/filter.dart';
 import 'package:open_mask/ui/screens/filter_editor_screen.dart';
 import 'package:open_mask/ui/view_models/filter_editor_view_model.dart';
@@ -8,6 +10,7 @@ import 'package:open_mask/ui/widgets/add_filter_popup.dart';
 import 'package:open_mask/ui/widgets/blue_text_button.dart';
 import 'package:open_mask/ui/widgets/delete_button.dart';
 import 'package:open_mask/ui/widgets/face_markings_list_tile.dart';
+import 'package:open_mask/ui/widgets/filter_tile.dart';
 import 'package:provider/provider.dart';
 
 /// View, welches die UI für den Editor enthält und dem [FilterEditorScreen] bereitstellt.
@@ -60,6 +63,35 @@ class FilterEditorView extends StatelessWidget {
               ),
             ),
           ),
+
+          // Filter-Komponenten-Übersicht
+          if (vm.currentFilter is CompositeFilter)
+            Positioned(
+                top: 100,
+                left: 10,
+                child: SizedBox(
+                  height: 200,
+                  width: 50,
+                  child: ReorderableListView.builder(
+                      itemBuilder: (final context, final index) {
+                        Filter filterItem =
+                            ((vm.currentFilter as CompositeFilter)
+                                .filterList[index] as Filter);
+                        return FilterTile(
+                            key: Key('$index'),
+                            filter: filterItem,
+                            isSelected: vm.selectedEditedFilter == filterItem,
+                            size: const Size(30, 30),
+                            onTap: (final selected) {
+                              FilterStore.instance.selectedEditedFilter =
+                                  selected;
+                            });
+                      },
+                      itemCount: (vm.currentFilter as CompositeFilter)
+                          .filterList
+                          .length,
+                      onReorder: vm.reorder),
+                )),
 
           // Obere Buttons
           Positioned(

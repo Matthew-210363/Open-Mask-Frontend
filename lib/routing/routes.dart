@@ -13,7 +13,7 @@ import 'package:open_mask/ui/screens/settings_screen.dart';
 /// Navigationsschlüssel für den nicht authentifizierten Bereich der App.
 final notAuthNavigatorKey = GlobalKey<NavigatorState>();
 
-/// [GoRoute]-Liste mit drei Branches/Tabs zur Navigation in der App für nicht authentifizierte Benutzer.
+/// [GoRoute]-Liste mit simplen Routen für nicht authentifizierte Benutzer.
 /// <ul>
 ///   <li>Login-Seite ([LoginScreen.routePath])</li>
 ///   <li>Registrierungs-Seite ([RegisterScreen.routePath])</li>

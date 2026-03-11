@@ -156,6 +156,14 @@ class FilterEditorViewModel extends ChangeNotifier {
     }
   }
 
+  /// Falls [currentFilter] ein [CompositeFilter] ist, werden dessen Elemente neu angeordnet.
+  void reorder(final int oldIndex, final int newIndex) {
+    if (currentFilter is! CompositeFilter) return;
+    CompositeFilter current = (currentFilter as CompositeFilter);
+    current.reorderFilter(oldIndex, newIndex);
+    notifyListeners();
+  }
+
   /// Überprüft, ob der [currentFilter] bereits existiert und speichert ihn gegebenenfalls.
   /// Entfernt [currentFilter] aus der Bearbeitung, falls dieser zuvor schon gespeichert wurde.
   void save() {

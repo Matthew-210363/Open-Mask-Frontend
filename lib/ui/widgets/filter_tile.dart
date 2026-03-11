@@ -15,7 +15,8 @@ class FilterTile extends StatelessWidget {
       {super.key,
       required this.filter,
       required this.isSelected,
-      required this.onTap});
+      required this.onTap,
+      this.size = const Size(45, 45)});
 
   /// Der konkrete, darzustellende Filter.
   final Filter filter;
@@ -25,6 +26,9 @@ class FilterTile extends StatelessWidget {
 
   /// Wird ausgeführt, wenn das [FilterTile] geklickt wird.
   final Function(Filter) onTap;
+
+  /// Gibt die Größe des inneren Kreises an.
+  final Size size;
 
   @override
   Widget build(final BuildContext context) {
@@ -44,8 +48,8 @@ class FilterTile extends StatelessWidget {
             ),
             padding: const EdgeInsets.all(4),
             child: SizedBox(
-              width: 45,
-              height: 45,
+              width: size.width,
+              height: size.height,
               child: FittedBox(
                 child: filter.meta.icon,
               ),

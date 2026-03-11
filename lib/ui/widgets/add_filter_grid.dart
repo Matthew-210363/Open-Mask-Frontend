@@ -36,7 +36,6 @@ class AddFilterGrid extends StatelessWidget {
     }
 
     void onTap(final Filter element) {
-      element.meta.icon = null;
       FilterStore.instance.addFilterToEdit(element);
       Navigator.pop(context);
     }
