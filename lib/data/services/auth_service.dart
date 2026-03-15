@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:open_mask/data/constants.dart';
 import 'package:open_mask/data/model/user.dart';
+import 'package:open_mask/data/services/automatic_login_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/filter/filter_store.dart';
 
@@ -68,14 +69,14 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Meldet den Benutzer ab.
-  /// Dafür wird das Property [user] gecleared,
-  /// [loggedIn] auf false gesetzt,
-  /// [notifyListeners] zur Benachrichtigung der Änderungen aufgerufen
-  /// und das Logout im Backend gemeldet.
+  /// Dafür wird das Property [user] gecleared, [loggedIn] auf false gesetzt,
+  /// [notifyListeners] zur Benachrichtigung der Änderungen aufgerufen und das Logout im Backend gemeldet.
+  /// Außerdem werden die Nutzerdaten aus dem [AutomaticLoginService] gelöscht.
   Future<bool> logout() async {
     _loggedIn = false;
     _user = null;
     FilterStore.instance.clear();
+    AutomaticLoginService.instance.clearLoginData();
     notifyListeners();
     // TODO: implement backend communication
     return !_loggedIn;

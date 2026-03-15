@@ -1,53 +1,61 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 
-// TODO: vielleicht eher in Auth Service integrieren
-// TODO: überlegen ob static oder mit Instanz (eher Instanz wegen Variablen/State)
+/// Service zur Speicherung der Login-Daten und Durchführung des automatischen Logins.
 class AutomaticLoginService {
-  static bool _rememberMe = false;
+  /// Privater Konstruktor für das Singleton-Pattern.
+  AutomaticLoginService._internal();
 
-  static bool get rememberMe => _rememberMe;
+  /// Singleton-Instanz.
+  static final AutomaticLoginService instance =
+      AutomaticLoginService._internal();
 
-  /// Login-Daten lokal speichern
-  static Future<void> saveLoginData(
-      final String email, final String password) async {
+  /// Gibt an, ob die Benutzerdaten für die Zukunft gespeichert werden sollen,
+  /// um eine automatische Anmeldung zu ermöglichen.
+  bool _rememberMe = false;
+
+  /// Gibt an, ob die Benutzerdaten für die Zukunft gespeichert werden sollen,
+  /// um eine automatische Anmeldung zu ermöglichen.
+  bool get rememberMe => _rememberMe;
+
+  /// Konstante für die Verwendung des [FlutterSecureStorage].
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  /// Speichert die Login-Daten lokal mit [FlutterSecureStorage].
+  Future<void> saveLoginData(final String email, final String password) async {
     _rememberMe = true;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', email);
-    await prefs.setString('password', password);
-    await prefs.setBool('rememberMe', _rememberMe);
+
+    await _secureStorage.write(key: 'email', value: email);
+    await _secureStorage.write(key: 'password', value: password);
+    await _secureStorage.write(key: 'rememberMe', value: 'true');
   }
 
-  /// Lokale Login-Daten löschen
-  static Future<void> clearLoginData() async {
+  /// Löscht die Login-Daten.
+  Future<void> clearLoginData() async {
     _rememberMe = false;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('rememberMe', _rememberMe);
-    await prefs.setString('email', '');
-    await prefs.setString('password', '');
+
+    await _secureStorage.delete(key: 'email');
+    await _secureStorage.delete(key: 'password');
+    await _secureStorage.write(key: 'rememberMe', value: 'false');
   }
 
-  /// Automatisches Login
-  static Future<void> autoLogin() async {
-    /*
-    final prefs = await SharedPreferences.getInstance();
-    _rememberMe = prefs.getBool('rememberMe') ?? false;
+  /// Meldet den Benutzer automatisch an.
+  Future<void> autoLogin() async {
+    String? remember = await _secureStorage.read(key: 'rememberMe');
+
+    _rememberMe = remember == 'true';
+
     if (_rememberMe) {
-      String email = prefs.getString('email') ?? '';
-      String password = prefs.getString('password') ?? '';
-      bool success = await AuthService.login(email, password);
-      //-> login Seite
-      // am Besten über Routing
-      // (z.B. Loading/Starting Screen (route: "/") machen,
-      // als Initial-Route setzen
-      // und von dort aus weiternavigieren je nachdem, was rememberMe ist)
+      String email = await _secureStorage.read(key: 'email') ?? '';
+
+      String password = await _secureStorage.read(key: 'password') ?? '';
+
+      bool success = await AuthService.instance.login(email, password);
+
       if (!success) {
-        clearLoginData();
+        await clearLoginData();
         return;
       }
-      SnackBarService.showMessage("Automatisch eingeloggt");
     }
-     */
   }
-
-
 }
