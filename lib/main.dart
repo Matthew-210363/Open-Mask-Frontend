@@ -21,7 +21,7 @@ void main() async {
   final faceDetectionService = FaceDetectionService();
   final cameraService = CameraService();
   final auth = AuthService.instance;
-  AutomaticLoginService.autoLogin();
+  await AutomaticLoginService.instance.autoLogin();
 
   runApp(
     MultiProvider(

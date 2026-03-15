@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/data/services/automatic_login_service.dart';
 import 'package:open_mask/ui/view_models/login_view_model.dart';
 import 'package:open_mask/ui/widgets/stretched_button.dart';
@@ -21,7 +20,7 @@ class _LoginFormViewState extends State<LoginFormView> {
 
   late TextEditingController _passwordController;
 
-  bool _rememberMe = AutomaticLoginService.rememberMe;
+  bool _rememberMe = AutomaticLoginService.instance.rememberMe;
 
   @override
   void initState() {
@@ -110,9 +109,9 @@ class _LoginFormViewState extends State<LoginFormView> {
         String email = _emailController.text;
         String password = _passwordController.text;
         if (_rememberMe) {
-          AutomaticLoginService.saveLoginData(email, password);
+          AutomaticLoginService.instance.saveLoginData(email, password);
         } else {
-          AutomaticLoginService.clearLoginData();
+          AutomaticLoginService.instance.clearLoginData();
         }
         vm.login(email, password);
       }, 0.9),
