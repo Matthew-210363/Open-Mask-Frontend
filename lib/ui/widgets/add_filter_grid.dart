@@ -23,19 +23,19 @@ class AddFilterGrid extends StatelessWidget {
     final List<IFilter> filters =
         List.from(store.localFilters.where(searchFunction));
 
-    if (filters.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Text(
-            'Noch keine Elemente vorhanden',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-      );
-    }
+    final Widget newIcon = Icon(
+      Icons.add_rounded,
+      color: (ButtonTheme.of(context).colorScheme == null)
+          ? Colors.black
+          : ButtonTheme.of(context).colorScheme!.onPrimary,
+    );
+
+    Widget? defaultIcon;
 
     void onTap(final Filter element) {
+      if (element.meta.icon == newIcon) {
+        element.meta.icon = defaultIcon;
+      }
       FilterStore.instance.addFilterToEdit(element);
       Navigator.pop(context);
     }
@@ -54,12 +54,8 @@ class AddFilterGrid extends StatelessWidget {
             final Filter newFilter =
                 FilterFactory.create(filterType, isCreatedByUser: true)
                     as Filter;
-            newFilter.meta.icon = Icon(
-              Icons.add_rounded,
-              color: (ButtonTheme.of(context).colorScheme == null)
-                  ? Colors.black
-                  : ButtonTheme.of(context).colorScheme!.onPrimary,
-            );
+            defaultIcon = newFilter.meta.icon;
+            newFilter.meta.icon = newIcon;
 
             return FilterTile(
               filter: newFilter,

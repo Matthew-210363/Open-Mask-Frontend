@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:open_mask/filter/filter_type.dart';
 import 'package:open_mask/ui/widgets/add_filter_grid.dart';
 
+/// Gibt Tab-Namen je nach Filterart an.
+Map<FilterType, String> filterTypeTabNames = {
+  FilterType.mustache: 'Schnurrbärte',
+  FilterType.hat: 'Hüte',
+  FilterType.mask: 'Masken',
+  FilterType.rightEye: 'Rechtes Auge',
+  FilterType.leftEye: 'Linkes Auge'
+};
+
 /// Popup für die Auswahl eines Filters, um diesen im Editor hinzuzufügen.
 class AddFilterPopup extends StatelessWidget {
   /// Standard-Konstruktor.
@@ -15,7 +24,8 @@ class AddFilterPopup extends StatelessWidget {
     for (final FilterType type in FilterType.values) {
       grids.add(AddFilterGrid(filterType: type));
       tabs.add(Tab(
-        text: '${type.name[0].toUpperCase()}${type.name.substring(1)}',
+        text: filterTypeTabNames[type] ??
+            '${type.name[0].toUpperCase()}${type.name.substring(1)}',
       ));
     }
 

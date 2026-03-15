@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:open_mask/data/model/scale.dart';
 import 'package:open_mask/data/services/face_detection_service.dart';
 import 'package:open_mask/data/services/image_service.dart';
 import 'package:open_mask/filter/filter_store.dart';
@@ -56,6 +57,15 @@ class FilterEditorViewModel extends ChangeNotifier {
   /// Gibt an, ob Gesichtskonturen des Dummys ebenfalls visualisiert werden sollen.
   bool _showContours = true;
 
+  /// Gibt an, ob die Transparenz-Slidebar angezeigt werden soll.
+  bool _showOpacitySelection = false;
+
+  /// Gibt an, ob die Rotations-Slidebar angezeigt werden soll.
+  bool _showRotationSelection = false;
+
+  /// Gibt an, ob die Skalierungsauswahl angezeigt werden soll.
+  bool _showScaleSelection = false;
+
   /// Asset-Pfad des Dummy-Bildes.
   String get dummyAssetPath => _dummyAssetPaths[_selectedDummyIndex];
 
@@ -90,8 +100,21 @@ class FilterEditorViewModel extends ChangeNotifier {
   /// Gibt an, ob Markierungen angezeigt werden sollen.
   bool get showMarkings => _showMarkings;
 
+  /// Gibt an, ob die Transparenz-Slidebar angezeigt werden soll.
+  bool get showOpacitySelection => _showOpacitySelection;
+
+  /// Gibt an, ob die Rotations-Slidebar angezeigt werden soll.
+  bool get showRotationSelection => _showRotationSelection;
+
+  /// Gibt an, ob die Skalierungsauswahl angezeigt werden soll.
+  bool get showScaleSelection => _showScaleSelection;
+
   /// Gibt an, ob der Filter bereits gespeichert wurde.
   bool get saved => FilterStore.instance.localFilters.contains(currentFilter);
+
+  /// Gibt an, ob der [selectedEditedFilter] bearbeitet werden kann.
+  bool get isEditable =>
+      selectedEditedFilter != null && selectedEditedFilter?.config != null;
 
   /// Initialisiert wichtige Properties, z.B. durch das Laden der Gesichter der Dummys.
   Future<void> initialize() async {
@@ -161,6 +184,77 @@ class FilterEditorViewModel extends ChangeNotifier {
     if (currentFilter is! CompositeFilter) return;
     CompositeFilter current = (currentFilter as CompositeFilter);
     current.reorderFilter(oldIndex, newIndex);
+    notifyListeners();
+  }
+
+  /// Setzt den x-Wert des Offsets des [selectedEditedFilter] auf den gerundeten Wert von [newDx].
+  void setOffsetDx(final double newDx) {
+    if (!isEditable) {
+      return;
+    }
+    selectedEditedFilter!.config!.offset =
+        Offset(newDx.roundToDouble(), selectedEditedFilter!.config!.offset.dy);
+    notifyListeners();
+  }
+
+  /// Setzt den y-Wert des Offsets des [selectedEditedFilter] auf den gerundeten Wert von [newDy].
+  void setOffsetDy(final double newDy) {
+    if (!isEditable) {
+      return;
+    }
+    selectedEditedFilter!.config!.offset =
+        Offset(selectedEditedFilter!.config!.offset.dx, newDy.roundToDouble());
+    notifyListeners();
+  }
+
+  /// Schaltet die Transparenz-Scalebar-Anzeige ([showOpacitySelection]) um.
+  void switchShowOpacitySelection() {
+    _showOpacitySelection = !_showOpacitySelection;
+    _showScaleSelection = false;
+    _showRotationSelection = false;
+    notifyListeners();
+  }
+
+  /// Schaltet die Rotations-Scalebar-Anzeige ([showRotationSelection]) um.
+  void switchShowRotationSelection() {
+    _showRotationSelection = !_showRotationSelection;
+    _showScaleSelection = false;
+    _showOpacitySelection = false;
+    notifyListeners();
+  }
+
+  /// Schaltet die Skalierungs-Scalebar-Anzeige ([showScaleSelection]) um.
+  void switchShowScaleSelection() {
+    _showScaleSelection = !_showScaleSelection;
+    _showOpacitySelection = false;
+    _showRotationSelection = false;
+    notifyListeners();
+  }
+
+  /// Setzt die Transparenz des [selectedEditedFilter] auf [opacity].
+  void setOpacity(final double opacity) {
+    if (!isEditable) {
+      return;
+    }
+    selectedEditedFilter!.config!.opacity = opacity;
+    notifyListeners();
+  }
+
+  /// Setzt die Rotation des [selectedEditedFilter] auf [rotation].
+  void setRotation(final double rotation) {
+    if (!isEditable) {
+      return;
+    }
+    selectedEditedFilter!.config!.rotation = rotation;
+    notifyListeners();
+  }
+
+  /// Setzt die Skalierung des [selectedEditedFilter] auf [scale].
+  void setScale(final double scale) {
+    if (!isEditable) {
+      return;
+    }
+    selectedEditedFilter!.config!.scale = Scale(scale, scale);
     notifyListeners();
   }
 

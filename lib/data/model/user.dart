@@ -29,8 +29,8 @@ class User {
   /// Der richtige Name des Users.
   final String name;
 
-  /// Der anzeige Name des Users.
-  /// Wenn keiner gesetzt ist ist der displayName = Username.
+  /// Der Anzeigename des Users.
+  /// Wenn keiner gesetzt ist, gilt displayName = Username.
   final String displayName;
 
   /// Methode zur JSON‑Serialisierung.
