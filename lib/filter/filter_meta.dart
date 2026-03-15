@@ -5,14 +5,18 @@ import 'package:open_mask/data/model/user.dart';
 class FilterMeta {
   /// Standard-Konstruktor.
   FilterMeta(
-      {this.name = defaultName,
-      this.description = defaultDescription,
+      {final String name = defaultName,
+      final String description = defaultDescription,
       this.createdBy,
       this.createdAt,
-      this.updatedAt,
-      this.isPublic = false,
+      final DateTime? updatedAt,
+      final bool isPublic = false,
       final Widget? icon})
-      : _icon = icon;
+      : _name = name,
+        _description = description,
+        _updatedAt = updatedAt,
+        _isPublic = isPublic,
+        _icon = icon;
 
   /// Factory-Methode zur JSON‑Deserialisierung.
   factory FilterMeta.fromJson(final Map<String, dynamic> json) => FilterMeta(
@@ -30,32 +34,67 @@ class FilterMeta {
   static const String defaultDescription = 'Neu ersteller Filter';
 
   /// Name des Filters.
-  String name;
+  String _name;
 
   /// Beschreibung des Filters.
-  String description;
+  String _description;
 
   /// Ersteller des Filters.
   final User? createdBy;
 
-  /// Erstellungsdatum des Filters.
+  /// Erstellungszeitpunkt des Filters.
   final DateTime? createdAt;
 
-  /// Datum, an dem der Filter zuletzt veröndert wurde.
-  DateTime? updatedAt;
+  /// Datum, an dem der Filter zuletzt verändert wurde.
+  DateTime? _updatedAt;
 
   /// Veröffentlichungsstatus, welcher aussagt, ob der Filter veröffentlich worden ist oder nicht.
-  bool isPublic;
+  bool _isPublic;
 
   /// Icon des Filters als [Widget] (standardmäßig null).
   Widget? _icon;
+
+  /// Name des Filters.
+  String get name => _name;
+
+  /// Name des Filters.
+  set name(final String value) {
+    _name = value;
+    _updatedAt = DateTime.now();
+  }
+
+  /// Beschreibung des Filters.
+  String get description => _description;
+
+  /// Beschreibung des Filters.
+  set description(final String value) {
+    _description = value;
+    _updatedAt = DateTime.now();
+  }
+
+  /// Datum, an dem der Filter zuletzt verändert wurde.
+  DateTime? get updatedAt => _updatedAt ?? createdAt;
+
+  /// Veröffentlichungsstatus, welcher aussagt, ob der Filter veröffentlich worden ist oder nicht.
+  bool get isPublic => _isPublic;
+
+  /// Veröffentlichungsstatus, welcher aussagt, ob der Filter veröffentlich worden ist oder nicht.
+  set isPublic(final bool value) {
+    _isPublic = value;
+    _updatedAt = DateTime.now();
+  }
 
   /// Icon des Filters als [Widget]. Falls dieses noch nicht gesetzt wurde, wird das App-Logo benutzt.
   Widget get icon =>
       _icon ?? Image.asset('assets/images/icons/app-icon_round.png');
 
+  /// Gibt an, ob das Icon intern null ist und [icon] den Default-Wert zurückgibt.
+  bool get iconIsDefault => _icon == null;
+
+  /// Icon des Filters als [Widget].
   set icon(final Widget? newIcon) {
     _icon = newIcon;
+    _updatedAt = DateTime.now();
   }
 
   /// Methode zur JSON‑Serialisierung für die Backend-Kommunikation.

@@ -1,8 +1,16 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:open_mask/data/services/image_service.dart';
 import 'package:open_mask/filter/filter_factory.dart';
+import 'package:open_mask/filter/filter_image.dart';
 import 'package:open_mask/filter/filter_type.dart';
 import 'package:open_mask/filter/i_filter.dart';
 import 'package:open_mask/filter/templates/composite_filter.dart';
+import 'package:open_mask/filter/templates/image_filter.dart';
+import 'package:path/path.dart';
 
 /// Datenhalter-Klasse, welche globale Filterdaten speichert.
 class FilterStore extends ChangeNotifier {
@@ -105,7 +113,8 @@ class FilterStore extends ChangeNotifier {
   /// Falls bereits ein Filter existiert, welcher nicht zusammengesetzt ist,
   /// wird der [currentlyEditedFilter] in einen [CompositeFilter] umgewandelt und der [filter] hinzugefügt.
   void addFilterToEdit(final IFilter filter) {
-    if (_currentlyEditedFilter == null && filter is! CompositeFilter) {
+    if (_currentlyEditedFilter == null &&
+        (filter is! CompositeFilter || filter.filterList.isEmpty)) {
       currentlyEditedFilter = filter;
     } else if (_currentlyEditedFilter is! CompositeFilter) {
       CompositeFilter composite =
@@ -128,6 +137,79 @@ class FilterStore extends ChangeNotifier {
   void createFilterToEdit(final FilterType type) {
     IFilter filter = FilterFactory.create(type, isCreatedByUser: true);
     FilterStore.instance.addFilterToEdit(filter);
+  }
+
+  /// Lädt das Filterbild des aktuell im Editor ausgewählten Filters vom angegebenen [assetPath]. <br>
+  /// Liefert true zurück, wenn das Asset erfolgreich gesetzt und geladen wurde.
+  Future<bool> loadSelectedEditedFilterImageFromAsset(
+      final String assetPath) async {
+    if (selectedEditedFilter is! ImageFilter) {
+      return false;
+    }
+    final imageFilter = selectedEditedFilter as ImageFilter;
+    final previousAssetPath = imageFilter.filterImage.assetPath;
+    imageFilter.filterImage.assetPath = assetPath;
+    final filename = basename(assetPath);
+    bool success = await imageFilter.filterImage.loadFromAsset();
+    if (success) {
+      imageFilter.filterImage.imageUrl = null;
+      imageFilter.filterImage.filename = filename;
+    } else {
+      imageFilter.filterImage.assetPath = previousAssetPath;
+      await imageFilter.load();
+    }
+    notifyListeners();
+    return success;
+  }
+
+  /// Lädt das Filterbild des aktuell im Editor ausgewählten Filters von der angegebenen [url]. <br>
+  /// Liefert true zurück, wenn das Bild erfolgreich heruntergeladen wurde.
+  Future<bool> loadSelectedEditedFilterImageFromUrl(final String url) async {
+    if (selectedEditedFilter is! ImageFilter) {
+      return false;
+    }
+    final imageFilter = selectedEditedFilter as ImageFilter;
+    final previousUrl = imageFilter.filterImage.imageUrl;
+    imageFilter.filterImage.imageUrl = url;
+    final filename = url.split('/').last;
+    bool success = await imageFilter.filterImage.loadFromURL();
+    if (success) {
+      imageFilter.filterImage.assetPath = null;
+      imageFilter.filterImage.filename = filename;
+    } else {
+      imageFilter.filterImage.imageUrl = previousUrl;
+      await imageFilter.load();
+    }
+    notifyListeners();
+    return success;
+  }
+
+  /// Wählt ein neues Filterbild für den aktuell im Editor ausgewählten Filter mit dem [ImagePicker] <br>
+  /// Liefert false zurück, wenn der aktuelle Filter kein Bildfilter ist oder das Bild nicht erfolgreich ausgewählt wurde.
+  Future<bool> pickSelectedEditedFilterImage() async {
+    if (selectedEditedFilter is! ImageFilter) {
+      return false;
+    }
+    final imagePicker = ImagePicker();
+    XFile? xFileImage =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+    if (xFileImage == null) {
+      return false;
+    }
+
+    ImageFilter imageFilter =
+        (FilterStore.instance.selectedEditedFilter as ImageFilter);
+    File imageFile = File(xFileImage.path);
+    ui.Image image = await ImageService.loadUiImageFromFile(imageFile);
+    FilterImage filterImage = FilterImage(
+        image: image,
+        filename: '${imageFilter.type}',
+        width: image.width,
+        height: image.height);
+    imageFilter.filterImage = filterImage;
+    imageFilter.filterImage.filename = basename(imageFile.path);
+    notifyListeners();
+    return true;
   }
 
   /// Setzt den lokalen Filter-Speicher vollständig zurück und löscht alle enthaltenen Filter.

@@ -71,6 +71,8 @@ dependencies:
   gal: ^2.3.2
   synchronized: ^3.4.0
   flutter_secure_storage: ^10.0.0
+  syncfusion_flutter_sliders: ^32.2.9
+  syncfusion_flutter_core: ^32.2.9
   #media_store_plus: ^0.1.3
 
 dev_dependencies:
@@ -102,7 +104,10 @@ flutter:
     - assets/images/filter/mustache.png
     - assets/images/filter/hat.png
     - assets/images/filter/mask.png
+    - assets/images/filter/red_glowing_eye.png
+    - assets/images/filter/detective-hat.png
     - assets/images/dummys/editor-dummy.png
+    - assets/images/filter/brown-hat.png
     - assets/images/dummys/editor-dummy-v2.png
     - assets/images/dummys/editor-dummy-female.png
 

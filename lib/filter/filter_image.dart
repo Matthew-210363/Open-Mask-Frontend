@@ -12,6 +12,7 @@ class FilterImage {
       required this.filename,
       this.assetPath,
       this.imageUrl,
+      this.image,
       final int? width,
       final int? height})
       : _width = width,
@@ -29,8 +30,8 @@ class FilterImage {
   /// Eindeutige Datenbank-ID des Filters.
   final int? id;
 
-  /// Der Name des Bildes, welcher beim Speichern als Dateiname dient.
-  final String filename;
+  /// Der Name des Bildes, welcher beim Speichern als Dateiname (ohne Erweiterung) dient.
+  String filename;
 
   /// MIME-Typ des Bildes, z.B. "image/png".
   String? mimeType;
@@ -87,6 +88,9 @@ class FilterImage {
     } else {
       SnackBarService.showMessage(
           'Asset ($assetPath) konnte nicht geladen werden!');
+      _isLoading = false;
+      _failedToLoad = true;
+      return !_failedToLoad;
     }
 
     _failedToLoad = image == null;
@@ -106,6 +110,10 @@ class FilterImage {
     rawData = await ImageService.loadImageFromURL(imageUrl!);
     if (rawData != null) {
       image = await ImageService.uint8ListToUiImage(rawData!);
+    } else {
+      _isLoading = false;
+      _failedToLoad = true;
+      return !_failedToLoad;
     }
 
     _failedToLoad = image == null;

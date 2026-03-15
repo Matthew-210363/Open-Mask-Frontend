@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_mask/filter/filter_store.dart';
 import 'package:open_mask/filter/templates/composite_filter.dart';
 import 'package:open_mask/filter/templates/filter.dart';
+import 'package:open_mask/filter/templates/image_filter.dart';
 import 'package:open_mask/ui/screens/filter_editor_screen.dart';
 import 'package:open_mask/ui/view_models/filter_editor_view_model.dart';
 import 'package:open_mask/ui/views/face_markings_view.dart';
@@ -9,9 +10,15 @@ import 'package:open_mask/ui/views/filter_view.dart';
 import 'package:open_mask/ui/widgets/add_filter_popup.dart';
 import 'package:open_mask/ui/widgets/blue_text_button.dart';
 import 'package:open_mask/ui/widgets/delete_button.dart';
+import 'package:open_mask/ui/widgets/editable_text_tile.dart';
 import 'package:open_mask/ui/widgets/face_markings_list_tile.dart';
+import 'package:open_mask/ui/widgets/filter_meta_popup.dart';
 import 'package:open_mask/ui/widgets/filter_tile.dart';
+import 'package:open_mask/ui/widgets/image_selection_popup.dart';
+import 'package:open_mask/ui/widgets/round_icon_button.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 /// View, welches die UI für den Editor enthält und dem [FilterEditorScreen] bereitstellt.
 /// Nutzt das [FilterEditorViewModel] für Logik.
@@ -24,12 +31,30 @@ class FilterEditorView extends StatelessWidget {
     final FilterEditorViewModel vm = context.watch<FilterEditorViewModel>();
     final theme = Theme.of(context);
 
+    final Size buttonSize = const Size(40, 40);
+
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        title: Text(vm.currentFilter == null
-            ? ''
-            : (vm.currentFilter as Filter).meta.name),
+        titleSpacing: 0.0,
+        title: vm.currentFilter == null
+            ? const Text('')
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                      icon: const Icon(Icons.info_outline_rounded),
+                      onPressed: () => _openFilterMetaPopup(
+                          context, vm.currentFilter as Filter)),
+                  Flexible(
+                    child: EditableTextTile(
+                        getText: () => (vm.currentFilter as Filter).meta.name,
+                        setText: (final text) =>
+                            (vm.currentFilter as Filter).meta.name = text),
+                  ),
+                  const SizedBox(width: 30),
+                ],
+              ),
         centerTitle: true,
       ),
       body: Stack(
@@ -64,38 +89,225 @@ class FilterEditorView extends StatelessWidget {
             ),
           ),
 
-          // Filter-Komponenten-Übersicht
-          if (vm.currentFilter is CompositeFilter)
+          // Linke Bearbeitungstools
+          if (vm.selectedEditedFilter != null &&
+              vm.selectedEditedFilter?.config != null)
             Positioned(
-                top: 100,
                 left: 10,
-                child: SizedBox(
-                  height: 200,
-                  width: 50,
-                  child: ReorderableListView.builder(
-                      itemBuilder: (final context, final index) {
-                        Filter filterItem =
-                            ((vm.currentFilter as CompositeFilter)
-                                .filterList[index] as Filter);
-                        return FilterTile(
-                            key: Key('$index'),
-                            filter: filterItem,
-                            isSelected: vm.selectedEditedFilter == filterItem,
-                            size: const Size(30, 30),
-                            onTap: (final selected) {
-                              FilterStore.instance.selectedEditedFilter =
-                                  selected;
-                            });
-                      },
-                      itemCount: (vm.currentFilter as CompositeFilter)
-                          .filterList
-                          .length,
-                      onReorder: vm.reorder),
+                bottom: 90,
+                top: 60,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Opacity-Selection
+                    if (vm.showOpacitySelection)
+                      Expanded(
+                        child: SfSliderTheme(
+                          data: SfSliderThemeData(
+                              tooltipBackgroundColor: Colors.blue,
+                              overlayRadius: buttonSize.width / 2),
+                          child: SfSlider.vertical(
+                              activeColor: Colors.blue,
+                              inactiveColor: Colors.blue,
+                              min: 0.0,
+                              max: 1.0,
+                              enableTooltip: true,
+                              tooltipPosition: SliderTooltipPosition.right,
+                              tooltipTextFormatterCallback: (final dynamic
+                                          actualValue,
+                                      final String formattedText) =>
+                                  '${((actualValue as double) * 10000).roundToDouble() / 100} %',
+                              value: vm.selectedEditedFilter!.config!.opacity,
+                              onChanged: (final newOpacity) =>
+                                  vm.setOpacity(newOpacity)),
+                        ),
+                      ),
+                    RoundIconButton(
+                      icon: Icons.opacity_rounded,
+                      onTap: vm.switchShowOpacitySelection,
+                      size: buttonSize,
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Rotation-Selection
+                    if (vm.showRotationSelection)
+                      Expanded(
+                        child: SfSliderTheme(
+                          data: SfSliderThemeData(
+                              tooltipBackgroundColor: Colors.blue,
+                              overlayRadius: buttonSize.width / 2),
+                          child: SfSlider.vertical(
+                              activeColor: Colors.blue,
+                              inactiveColor: Colors.blue,
+                              min: 0.0,
+                              max: 360.0,
+                              enableTooltip: true,
+                              stepSize: 1,
+                              tooltipPosition: SliderTooltipPosition.right,
+                              tooltipTextFormatterCallback:
+                                  (final dynamic actualValue,
+                                          final String formattedText) =>
+                                      '${(actualValue as double).round()}°',
+                              value: vm.selectedEditedFilter!.config!.rotation,
+                              onChanged: (final newRotation) =>
+                                  vm.setRotation(newRotation)),
+                        ),
+                      ),
+                    RoundIconButton(
+                      icon: Icons.rotate_right,
+                      onTap: vm.switchShowRotationSelection,
+                      size: buttonSize,
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Scale-Selection
+                    if (vm.showScaleSelection)
+                      Expanded(
+                        child: SfSliderTheme(
+                          data: SfSliderThemeData(
+                              tooltipBackgroundColor: Colors.blue,
+                              overlayRadius: buttonSize.width / 2),
+                          child: SfSlider.vertical(
+                              activeColor: Colors.blue,
+                              inactiveColor: Colors.blue,
+                              min: 0.0,
+                              max: 3.0,
+                              stepSize: 0.01,
+                              enableTooltip: true,
+                              tooltipPosition: SliderTooltipPosition.right,
+                              tooltipTextFormatterCallback: (final dynamic
+                                          actualValue,
+                                      final String formattedText) =>
+                                  '${((actualValue as double) * 100).round()}%',
+                              value:
+                                  vm.selectedEditedFilter!.config!.scale.scaleX,
+                              onChanged: (final newScale) =>
+                                  vm.setScale(newScale)),
+                        ),
+                      ),
+                    RoundIconButton(
+                      icon: Icons.photo_size_select_large_rounded,
+                      onTap: vm.switchShowScaleSelection,
+                      size: buttonSize,
+                    )
+                  ],
                 )),
+
+          // x-Offset-Bearbeitung
+          if (vm.selectedEditedFilter != null &&
+              vm.selectedEditedFilter?.config != null)
+            Positioned(
+                bottom: 55,
+                left: 40,
+                right: 40,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SfSliderTheme(
+                        data: SfSliderThemeData(
+                            tooltipBackgroundColor: Colors.red,
+                            overlayRadius: buttonSize.width / 2),
+                        child: SfSlider(
+                            activeColor: Colors.red,
+                            inactiveColor: Colors.red,
+                            min: -125,
+                            max: 125,
+                            stepSize: 1.0,
+                            enableTooltip: true,
+                            tooltipTextFormatterCallback:
+                                (final dynamic actualValue,
+                                        final String formattedText) =>
+                                    'x=${(actualValue as double).round()}',
+                            value: vm.selectedEditedFilter!.config!.offset.dx,
+                            onChanged: (final newDx) => vm.setOffsetDx(newDx)),
+                      ),
+                    ),
+                  ],
+                )),
+
+          // Rechte Bearbeitungstools
+          Positioned(
+              bottom: 90,
+              top: 60,
+              right: 10,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // Filter-Komponenten-Übersicht
+                  if (vm.currentFilter is CompositeFilter)
+                    Expanded(
+                      child: SizedBox(
+                        width: 50,
+                        child: ReorderableListView.builder(
+                            itemBuilder: (final context, final index) {
+                              Filter filterItem =
+                                  ((vm.currentFilter as CompositeFilter)
+                                      .filterList[index] as Filter);
+                              return FilterTile(
+                                  key: Key('$index'),
+                                  filter: filterItem,
+                                  isSelected:
+                                      vm.selectedEditedFilter == filterItem,
+                                  size: const Size(30, 30),
+                                  onTap: (final selected) {
+                                    FilterStore.instance.selectedEditedFilter =
+                                        selected;
+                                  });
+                            },
+                            itemCount: (vm.currentFilter as CompositeFilter)
+                                .filterList
+                                .length,
+                            onReorder: vm.reorder),
+                      ),
+                    ),
+
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      children: [
+                        // y-Offset-Bearbeitung
+                        if (vm.selectedEditedFilter != null &&
+                            vm.selectedEditedFilter?.config != null)
+                          Expanded(
+                            child: SfSliderTheme(
+                              data: SfSliderThemeData(
+                                  tooltipBackgroundColor: Colors.green,
+                                  overlayRadius: buttonSize.width / 2),
+                              child: SfSlider.vertical(
+                                  activeColor: Colors.green,
+                                  inactiveColor: Colors.green,
+                                  min: -125,
+                                  max: 125,
+                                  stepSize: 1.0,
+                                  enableTooltip: true,
+                                  tooltipTextFormatterCallback: (final dynamic
+                                              actualValue,
+                                          final String formattedText) =>
+                                      'x=${(actualValue as double).round()}',
+                                  value: vm
+                                      .selectedEditedFilter!.config!.offset.dy,
+                                  onChanged: (final newDy) =>
+                                      vm.setOffsetDy(newDy)),
+                            ),
+                          ),
+
+                        // Bildauswahl
+                        if (vm.selectedEditedFilter is ImageFilter)
+                          RoundIconButton(
+                            size: buttonSize,
+                            onTap: () => _openSelectionPopup(context),
+                            icon: Icons.image_rounded,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              )),
 
           // Obere Buttons
           Positioned(
-            top: 10,
+            top: 5,
             left: 10,
             right: 10,
             child: Row(
@@ -124,7 +336,7 @@ class FilterEditorView extends StatelessWidget {
 
           // Untere Buttons
           Positioned(
-            bottom: 10,
+            bottom: 5,
             left: 10,
             right: 10,
             child: Row(
@@ -195,6 +407,26 @@ class FilterEditorView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  /// Öffnet das Popup für die Bildauswahl des aktuell ausgewählten Filters im angegebenen [context].
+  void _openSelectionPopup(final BuildContext context) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      barrierColor: theme.colorScheme.surface.withAlpha(180),
+      builder: (final context) => const ImageSelectionPopup(),
+    );
+  }
+
+  /// Öffnet ein Popup zum Anzeigen und Verändern der Filter-Metadaten des aktuellen Filters im gegebenen [context].
+  void _openFilterMetaPopup(final BuildContext context, final Filter filter) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      barrierColor: theme.colorScheme.surface.withAlpha(180),
+      builder: (final context) => FilterMetaPopup(filter),
     );
   }
 }

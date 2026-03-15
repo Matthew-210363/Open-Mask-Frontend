@@ -22,8 +22,9 @@ class GeometryService {
       Offset((a.dx + b.dx) / 2, (a.dy + b.dy) / 2);
 
   /// Skaliert ein Offset ([offset] in % angegeben) prozentual auf eine Breite ([width]) und Höhe ([height]).
+  /// Invertiert auch das y-Offset, damit negativ unten und positiv oben ist.
   static Offset scaleOffset(
       final Offset offset, final double width, final double height) {
-    return Offset(offset.dx / 100 * width, offset.dy / 100 * height);
+    return Offset(offset.dx / 100 * width, -offset.dy / 100 * height);
   }
 }

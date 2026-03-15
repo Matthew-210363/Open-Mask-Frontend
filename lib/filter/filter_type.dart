@@ -1,5 +1,5 @@
 /// Enum, welches alle möglichen Filterarten/Filtertypen enthält
-enum FilterType { composite, mustache, hat, mask }
+enum FilterType { composite, mustache, hat, mask, leftEye, rightEye }
 
 /// Findet den passenden [FilterType] durch das String
 FilterType filterTypeFromString(final String value) {

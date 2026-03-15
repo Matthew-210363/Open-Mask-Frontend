@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:open_mask/filter/face_geometry_calculator.dart';
+import 'package:open_mask/filter/filter_store.dart';
 import 'package:open_mask/filter/i_filter.dart';
-import 'package:open_mask/filter/templates/composite_filter.dart';
 
 /// Ein [CustomPainter], welcher dazu dient einen Filter auf mehrere Gesichter anzuwenden.
 class FaceFilterPainter extends CustomPainter {
@@ -20,7 +20,9 @@ class FaceFilterPainter extends CustomPainter {
     required this.processedSize,
     required this.isFrontCamera,
     required this.filter,
-  });
+  }) {
+    FilterStore.instance.addListener(() => changeSwitch = !changeSwitch);
+  }
 
   /// Gesichter, auf die der angegebene Filter [filter] angewendet werden soll.
   final List<Face> faces;
@@ -33,6 +35,9 @@ class FaceFilterPainter extends CustomPainter {
 
   /// Der Filter, der auf die Gesichter [faces] angewendet werden soll.
   final IFilter filter;
+
+  /// Kann verändert werden, um ein erneutes Rendern zu erzwingen.
+  bool changeSwitch = true;
 
   /// Malt den Filter auf das angegebene [image] und liefert ein neues Bild mit angewandtem Filter als [ui.Image] zurück.
   Future<ui.Image> paintOnImage(final ui.Image image) async {
@@ -63,10 +68,7 @@ class FaceFilterPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant final FaceFilterPainter oldDelegate) {
-    if (oldDelegate.filter is CompositeFilter && filter is CompositeFilter) {
-      return true; // Damit Filter direkt hinzugefügt werden
-    }
-
-    return oldDelegate.faces != faces || oldDelegate.filter != filter;
+    return oldDelegate.faces != faces ||
+        oldDelegate.changeSwitch != changeSwitch;
   }
 }
