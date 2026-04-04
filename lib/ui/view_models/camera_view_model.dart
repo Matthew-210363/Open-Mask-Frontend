@@ -7,6 +7,7 @@ import 'package:open_mask/data/services/camera_service.dart';
 import 'package:open_mask/data/services/face_detection_service.dart';
 import 'package:open_mask/data/services/image_service.dart';
 import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:open_mask/data/services/storage_service.dart';
 import 'package:open_mask/filter/filter_factory.dart';
 import 'package:open_mask/filter/filter_image.dart';
 import 'package:open_mask/filter/filter_meta.dart';
@@ -321,8 +322,8 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
       final ui.Image editedImage = await ImageService.applyFilterToImage(
           imageFile, faceDetectionService.faceDetector!, filter!);
 
-      final File editedFile = await ImageService.saveUiImageToAppGallery(
-          editedImage, basename(imageFile.path));
+      final File editedFile = await StorageService.instance
+          .saveUiImageToAppGallery(editedImage, basename(imageFile.path));
     } catch (e) {
       SnackBarService.showMessage('Error taking picture: $e');
     }
