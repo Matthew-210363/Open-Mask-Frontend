@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
+import 'package:open_mask/data/model/image_mime_type.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'image_service.dart';
@@ -14,22 +16,30 @@ class StorageService {
   /// Singleton-Instanz.
   static final StorageService instance = StorageService._internal();
 
-  /// Liefert den Galerie-Ordner der App zurück bzw. erstellt diesen, wenn nötig.
-  Future<Directory> getAppGalleryDirectory() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final galleryDir = Directory('${dir.path}/photos');
+  /// Pfad zum internen App-Speicher für Benutzerdateien.
+  Directory? _docsDir;
 
-    if (!await galleryDir.exists()) {
-      await galleryDir.create(recursive: true);
-    }
+  /// Ordner für alle Dateien des aktuellen Nutzers.
+  Directory get _userDir => Directory(
+      '${_docsDir!.path}/users/${AuthService.instance.user?.id ?? ''}');
 
-    return galleryDir;
+  /// Ordner für die Photos des aktuellen Nutzers.
+  Directory get _userPhotosDir => Directory('${_userDir.path}/photos');
+
+  /// Ordner für die Filtersammlung des aktuellen Nutzers.
+  Directory get _userFiltersDir => Directory('${_userDir.path}/filters');
+
+  /// Geht sicher, dass der Ordner existiert.
+  Future<Directory> _ensureDirExists(final Directory dir) async {
+    if (!await dir.exists()) await dir.create(recursive: true);
+    return dir;
   }
 
   /// Speichert ein aufgenommenes Foto ([picture]) in die App-Galerie unter dem Namen [filename].
   Future<File> savePhotoToAppGallery(
       final XFile picture, final String filename) async {
-    final dir = await getAppGalleryDirectory();
+    _docsDir ??= await getApplicationDocumentsDirectory();
+    final dir = await _ensureDirExists(_userPhotosDir);
     final file = File('${dir.path}/$filename');
     return File(picture.path).copy(file.path);
   }
@@ -37,19 +47,22 @@ class StorageService {
   /// Speichert das übergebene [image] in die App-Galerie mit dem angegebenen [filename].
   Future<File> saveUiImageToAppGallery(
       final ui.Image image, final String filename) async {
-    final dir = await getAppGalleryDirectory();
+    _docsDir ??= await getApplicationDocumentsDirectory();
+    final dir = await _ensureDirExists(_userPhotosDir);
     final File file = File('${dir.path}/$filename');
     return ImageService.saveUiImageToFile(image, file);
   }
 
-  /// Lädt Fotos aus der App-Galerie.
+  /// Listet die Fotodateien aus der App-Galerie auf.
   Future<List<File>> loadLocalPhotos() async {
-    final dir = await getAppGalleryDirectory();
+    _docsDir ??= await getApplicationDocumentsDirectory();
+    final dir = await _ensureDirExists(_userPhotosDir);
     final files = Directory(dir.path)
         .listSync()
         .whereType<File>()
-        .where((final file) =>
-            file.path.endsWith('.png') || file.path.endsWith('.jpg'))
+        .where((final file) => ImageMimeType.values
+            .map((final ImageMimeType mimeType) => mimeType.extension)
+            .contains(file.path.split('.').last))
         .toList()
       ..sort((final a, final b) => b.path.compareTo(a.path)); // neueste zuerst
 
