@@ -8,7 +8,8 @@ import 'package:open_mask/filter/templates/image_filter.dart';
 class RightEyeFilter extends ImageFilter {
   /// Standard-Konstruktor.
   RightEyeFilter(
-      {super.id,
+      {required super.id,
+      required super.uuid,
       required super.meta,
       required super.config,
       super.parentId,

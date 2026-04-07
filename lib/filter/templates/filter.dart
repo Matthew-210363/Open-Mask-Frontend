@@ -10,6 +10,7 @@ abstract class Filter implements IFilter {
   /// Standard-Konstruktor.
   Filter(
       {required this.id,
+      required this.uuid,
       required this.meta,
       required final config,
       required this.type,
@@ -18,6 +19,9 @@ abstract class Filter implements IFilter {
 
   /// Eindeutige Datenbank-ID des Filters.
   final int? id;
+
+  /// Eine UUID zur eindeutigen Identifikation des Filters.
+  final String uuid;
 
   /// Metadaten wie Name, Ersteller und Veröffentlichungsstatus.
   final FilterMeta meta;
@@ -37,12 +41,13 @@ abstract class Filter implements IFilter {
   @override
   Filter fork() {
     return FilterFactory.createType(type, meta.fork(),
-        config: config?.fork(), parentId: id) as Filter;
+        id: id, config: config?.fork(), parentId: id) as Filter;
   }
 
   @override
   Map<String, dynamic> toJSON() => {
         if (id != null) 'id': id,
+        'uuid': uuid,
         'meta': meta.toJSON(),
         'config': config?.toJSON() ?? {},
         'type': type.toString(),

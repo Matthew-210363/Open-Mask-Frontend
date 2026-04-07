@@ -11,7 +11,8 @@ import 'package:open_mask/filter/templates/image_filter.dart';
 class MouthFilter extends ImageFilter {
   /// Standard-Konstruktor.
   MouthFilter(
-      {super.id,
+      {required super.id,
+      required super.uuid,
       required super.meta,
       required super.config,
       super.parentId,

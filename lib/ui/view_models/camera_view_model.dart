@@ -10,7 +10,6 @@ import 'package:open_mask/data/services/snackbar_service.dart';
 import 'package:open_mask/data/services/storage_service.dart';
 import 'package:open_mask/filter/filter_factory.dart';
 import 'package:open_mask/filter/filter_image.dart';
-import 'package:open_mask/filter/filter_meta.dart';
 import 'package:open_mask/filter/filter_store.dart';
 import 'package:open_mask/filter/filter_type.dart';
 import 'package:open_mask/filter/i_filter.dart';
@@ -203,9 +202,10 @@ class CameraViewModel extends ChangeNotifier with WidgetsBindingObserver {
     maskFilter.meta.name = 'Transparente Maske';
     maskFilter.meta.icon =
         Opacity(opacity: 0.5, child: Image.asset(maskFilter.defaultAssetPath));
-    FilterMeta metaComposite = FilterMeta(
-        name: 'Hut-Schnurrbart-Filter', description: 'Schnurrbart und Hut');
-    CompositeFilter compositeFilter = CompositeFilter(meta: metaComposite);
+    CompositeFilter compositeFilter =
+        (FilterFactory.create(FilterType.composite) as CompositeFilter)
+          ..meta.name = 'Hut-Schnurrbart-Filter'
+          ..meta.description = 'Schnurrbart und Hut';
     compositeFilter.addFilter(mustache1);
     compositeFilter.addFilter(mustache2);
     compositeFilter.addFilter(hatFilter);
