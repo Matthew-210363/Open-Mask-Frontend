@@ -56,6 +56,7 @@ class FilterStore extends ChangeNotifier {
 
   set selectedFilter(final IFilter? newSelectedFilter) {
     if (newSelectedFilter != _selectedFilter) {
+      _selectedFilter?.dispose();
       newSelectedFilter?.load(); // neuen Filter asynchron laden
     }
     _selectedFilter = newSelectedFilter;
@@ -64,6 +65,7 @@ class FilterStore extends ChangeNotifier {
 
   set currentlyEditedFilter(final IFilter? newSelectedEditorFilter) {
     if (newSelectedEditorFilter != _currentlyEditedFilter) {
+      _currentlyEditedFilter?.dispose();
       newSelectedEditorFilter?.load().then((final value) =>
           notifyListeners()); // Filter für die Bearbeitung asynchron laden
     }
@@ -180,7 +182,7 @@ class FilterStore extends ChangeNotifier {
     final imageFilter = selectedEditedFilter as ImageFilter;
     final filename = basenameWithoutExtension(assetPath);
     final filterImage = FilterImage(filename: filename, assetPath: assetPath);
-    bool success = await filterImage.loadFromAsset();
+    bool success = await filterImage.load();
     if (success) {
       imageFilter.filterImage.dispose();
       imageFilter.filterImage = filterImage;
@@ -201,7 +203,7 @@ class FilterStore extends ChangeNotifier {
       filename: filename.split('.').first,
       imageUrl: url,
     );
-    bool success = await filterImage.loadFromURL();
+    bool success = await filterImage.load();
     if (success) {
       imageFilter.filterImage.dispose();
       imageFilter.filterImage = filterImage;

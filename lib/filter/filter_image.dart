@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 
 import 'package:open_mask/data/model/image_mime_type.dart';
 import 'package:open_mask/data/services/image_service.dart';
-import 'package:open_mask/data/services/snackbar_service.dart';
 
 /// Klasse zum Speichern eines Filter-Bildes, welches das Bild selbst mit dazugehörigen Metadaten enthält.
 class FilterImage {
@@ -89,41 +88,34 @@ class FilterImage {
   /// Gibt an, ob erfolglos versucht wurde, das Bild zu laden.
   bool get failedToLoad => _failedToLoad;
 
-  /// Lädt das Bild aus dem Asset. <br>
+  /// Lädt das Bild aus den Rohdaten. <br>
   /// Liefert true zurück, wenn das Bild erfolgreich geladen werden konnte.
   /// [failedToLoad] wird auf true gesetzt, falls das Laden fehlgeschlagen ist.
-  Future<bool> loadFromAsset() async {
-    if (assetPath == null || isLoading) {
+  Future<bool> loadFromRawData() async {
+    if (rawData == null || isLoading) {
       return false;
     }
-
     _isLoading = true;
-    rawData = await ImageService.loadImageFromAsset(assetPath!);
-    if (rawData != null) {
-      image = await ImageService.uint8ListToUiImage(rawData!);
-    } else {
-      SnackBarService.showMessage(
-          'Asset ($assetPath) konnte nicht geladen werden!');
-      _isLoading = false;
-      _failedToLoad = true;
-      return !_failedToLoad;
-    }
 
-    _failedToLoad = image == null;
-
+    image = await ImageService.uint8ListToUiImage(rawData!);
+    _failedToLoad = false;
     _isLoading = false;
-    return image != null;
+    return true;
   }
 
-  /// Lädt das Bild aus dem Internet über die URL. <br>
-  /// Liefert true zurück, wenn das Bild erfolgreich heruntergeladen wurde.
+  /// Versucht das Bild aus der URL ([loadFromURL]) und dem Asset ([loadFromAsset]) zu laden, je nachdem was angegeben wurde. <br>
+  /// Falls beides angegeben wurde, wird das Asset zuerst versucht zu laden). <br>
   /// [failedToLoad] wird auf true gesetzt, falls das Laden fehlgeschlagen ist.
-  Future<bool> loadFromURL() async {
-    if (imageUrl == null || isLoading) {
+  Future<bool> load() async {
+    if (isLoading) {
       return false;
     }
+    if (rawData != null) {
+      final bool success = await loadFromRawData();
+      if (success) return success;
+    }
+    await loadRawData();
     _isLoading = true;
-    rawData = await ImageService.loadImageFromURL(imageUrl!);
     if (rawData != null) {
       image = await ImageService.uint8ListToUiImage(rawData!);
     } else {
@@ -138,26 +130,35 @@ class FilterImage {
     return !_failedToLoad;
   }
 
-  /// Versucht das Bild aus der URL ([loadFromURL]) und dem Asset ([loadFromAsset]) zu laden, je nachdem was angegeben wurde. <br>
+  /// Lädt die Rohdaten aus dem Asset oder der URL, falls diese noch nicht vorhanden sind. <br>
   /// Falls beides angegeben wurde, wird das Asset zuerst versucht zu laden). <br>
   /// [failedToLoad] wird auf true gesetzt, falls das Laden fehlgeschlagen ist.
-  Future<bool> load() async {
+  Future<bool> loadRawData() async {
+    if (rawData != null) {
+      return true;
+    }
     if (isLoading) {
       return false;
     }
-    bool loaded = false;
-    loaded = await loadFromAsset();
-    if (loaded == false) {
-      loaded = await loadFromURL();
+    _isLoading = true;
+    if (assetPath != null) {
+      rawData = await ImageService.loadImageFromAsset(assetPath!);
     }
-    _failedToLoad = !loaded;
-    return loaded;
+    if (imageUrl != null) {
+      rawData ??= await ImageService.loadImageFromURL(imageUrl!);
+    }
+    _isLoading = false;
+    _failedToLoad = rawData == null;
+    return rawData != null;
   }
 
-  /// Gibt die verwendete Ressourcen für das Bild frei.
+  /// Gibt die verwendeten Ressourcen für das Bild frei.
   void dispose() {
     image?.dispose();
     image = null;
+    if (imageUrl != null || assetPath != null) {
+      rawData = null;
+    }
   }
 
   /// Methode zur JSON‑Serialisierung, welche den Filter in ein JSON-Objekt umwandelt.
