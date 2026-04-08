@@ -27,8 +27,9 @@ class StorageService {
   Directory? _docsDir;
 
   /// Ordner für alle Dateien des aktuellen Nutzers.
-  Directory get userDir => Directory(
-      '${_docsDir!.path}/users/${AuthService.instance.user?.id ?? ''}');
+  Directory get userDir =>
+      Directory(
+          '${_docsDir!.path}/users/${AuthService.instance.user?.id ?? ''}');
 
   /// Ordner für die Photos des aktuellen Nutzers.
   Directory get userPhotosDir => Directory('${userDir.path}/photos');
@@ -146,8 +147,8 @@ class StorageService {
   }
 
   /// Speichert ein aufgenommenes Foto ([picture]) in die App-Galerie unter dem Namen [filename].
-  Future<File> savePhotoToAppGallery(
-      final XFile picture, final String filename) async {
+  Future<File> savePhotoToAppGallery(final XFile picture,
+      final String filename) async {
     _docsDir ??= await getApplicationDocumentsDirectory();
     final dir = await ensureDirExists(userPhotosDir);
     final file = File('${dir.path}/$filename');
@@ -155,8 +156,8 @@ class StorageService {
   }
 
   /// Speichert das übergebene [image] in die App-Galerie mit dem angegebenen [filename].
-  Future<File> saveUiImageToAppGallery(
-      final ui.Image image, final String filename) async {
+  Future<File> saveUiImageToAppGallery(final ui.Image image,
+      final String filename) async {
     _docsDir ??= await getApplicationDocumentsDirectory();
     final dir = await ensureDirExists(userPhotosDir);
     final File file = File('${dir.path}/$filename');
@@ -170,9 +171,12 @@ class StorageService {
     final files = Directory(dir.path)
         .listSync()
         .whereType<File>()
-        .where((final file) => ImageMimeType.values
+        .where((final file) =>
+        ImageMimeType.values
             .map((final ImageMimeType mimeType) => mimeType.extension)
-            .contains(file.path.split('.').last))
+            .contains(file.path
+            .split('.')
+            .last))
         .toList()
       ..sort((final a, final b) => b.path.compareTo(a.path)); // neueste zuerst
 
@@ -204,7 +208,7 @@ class StorageService {
         final Filter child = filterList[i] as Filter;
         final Map<String, dynamic> childAsJSON = filterListAsJSON[i];
         final Directory childDir =
-            await ensureDirExists(filterChildDir(filterDir, i));
+        await ensureDirExists(filterChildDir(filterDir, i));
         await _saveFilterRecursively(childDir, child, childAsJSON);
       }
       filterAsJSON.remove('filterList');
@@ -219,7 +223,8 @@ class StorageService {
         if (!success) return;
       }
       File imageFile = File(
-          '${filterDir.path}/${filter.filterImage.filename}.${filter.filterImage.mimeType?.extension}');
+          '${filterDir.path}/${filter.filterImage.filename}.${filter.filterImage
+              .mimeType?.extension}');
       await imageFile.writeAsBytes(filter.filterImage.rawData!, flush: true);
       if (filter.filterImage.image == null) {
         filter.filterImage.dispose(); // wird nicht gerade verwendet
@@ -250,7 +255,7 @@ class StorageService {
     }
 
     Map<String, dynamic>? filterAsJSON =
-        await _loadFilterAsJSONRecursively(filterDir);
+    await _loadFilterAsJSONRecursively(filterDir);
     if (filterAsJSON == null) {
       return null;
     }
@@ -261,18 +266,22 @@ class StorageService {
   }
 
   /// Lädt die Ressourcen des Filters rekursiv aus dem angegebenen Ordner.
-  Future<void> _loadFilterResourcesRecursively(
-      final Directory filterDir, final IFilter filter) async {
+  Future<void> _loadFilterResourcesRecursively(final Directory filterDir,
+      final IFilter filter) async {
     final childrenDir = Directory('${filterDir.path}/children');
     if (await childrenDir.exists() && filter is CompositeFilter) {
       final childDirs = childrenDir.listSync().whereType<Directory>();
       final children = (filter).filterList;
 
       for (final Directory childDir in childDirs) {
-        final child = children
-            .where((final element) =>
-                (element as Filter).uuid == basename(childDir.path))
-            .firstOrNull;
+        final dirName = basename(childDir.path);
+        final index = int.tryParse(dirName);
+        final child = (index != null && index < children.length && index >= 0
+            ? children[index]
+            : null) ??
+            children
+                .where((final element) => (element as Filter).uuid == dirName)
+                .firstOrNull;
         if (child == null) continue;
         await _loadFilterResourcesRecursively(childDir, child);
       }
@@ -281,10 +290,11 @@ class StorageService {
     if (filter is! ImageFilter) return;
 
     File imageFile = File(
-        '${filterDir.path}/${filter.filterImage.filename}.${filter.filterImage.mimeType?.extension}');
+        '${filterDir.path}/${filter.filterImage.filename}.${filter.filterImage
+            .mimeType?.extension}');
     if (!await imageFile.exists()) return;
     filter.filterImage.rawData =
-        await ImageService.loadImageFromFile(imageFile);
+    await ImageService.loadImageFromFile(imageFile);
   }
 
   /// Baut rekursiv den Filter als JSON aus dem angegebenen Ordner auf.
@@ -295,7 +305,7 @@ class StorageService {
       return null;
     }
     final Map<String, dynamic> filterAsJSON =
-        jsonDecode(await jsonFile.readAsString());
+    jsonDecode(await jsonFile.readAsString());
 
     final childrenDir = Directory('${filterDir.path}/children');
     if (!await childrenDir.exists()) {
@@ -303,7 +313,6 @@ class StorageService {
     }
 
     final childDirs = childrenDir.listSync().whereType<Directory>().toList();
-    print('childDirs. $childDirs');
 
     List<Map<String, dynamic>> childrenAsJSON = <Map<String, dynamic>>[];
     childDirs.sort((final dir1, final dir2) {
@@ -316,7 +325,7 @@ class StorageService {
     });
     for (final Directory childDir in childDirs) {
       final Map<String, dynamic>? childAsJSON =
-          await _loadFilterAsJSONRecursively(childDir);
+      await _loadFilterAsJSONRecursively(childDir);
       if (childAsJSON == null) {
         continue;
       }
@@ -346,8 +355,8 @@ class StorageService {
   }
 
   /// Exportiert den Filter in den angegebenen [outputPath].
-  Future<File> exportFilter(
-      final Filter filter, final String outputPath) async {
+  Future<File> exportFilter(final Filter filter,
+      final String outputPath) async {
     return File('');
   }
 
