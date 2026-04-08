@@ -61,14 +61,14 @@ class StorageService {
   ///     <b>children/</b>
   ///     <ul>
   ///       <li>
-  ///         <b>{child-uuid}/</b>
+  ///         <b>0/</b>
   ///         <ul>
   ///           <li>filter.json</li>
   ///           <li>image.png</li>
   ///         </ul>
   ///       </li>
   ///       <li>
-  ///         <b>{child-uuid}/</b>
+  ///         <b>1/</b>
   ///         <ul>
   ///           <li>filter.json</li>
   ///         </ul>
@@ -94,33 +94,33 @@ class StorageService {
   ///     <b>children/</b>
   ///     <ul>
   ///       <li>
-  ///         <b>{child-uuid}/</b>
+  ///         <b>0/</b>
   ///         <ul>
   ///           <li>filter.json</li>
   ///           <li>image.png</li>
   ///         </ul>
   ///       </li>
   ///       <li>
-  ///         <b>{child-uuid}/</b>
+  ///         <b>1/</b>
   ///         <ul>
   ///           <li>filter.json</li>
   ///         </ul>
   ///       </li>
   ///       <li>
-  ///         <b>{composite-child-uuid}/</b>
+  ///         <b>2/</b>
   ///         <ul>
   ///           <li>filter.json</li>
   ///           <li>
   ///             <b>children/</b>
   ///             <ul>
   ///               <li>
-  ///                 <b>{child-uuid}/</b>
+  ///                 <b>0/</b>
   ///                 <ul>
   ///                   <li>filter.json</li>
   ///                 </ul>
   ///               </li>
   ///               <li>
-  ///                 <b>{child-uuid}/</b>
+  ///                 <b>1/</b>
   ///                 <ul>
   ///                   <li>filter.json</li>
   ///                   <li>image.png</li>
@@ -136,8 +136,8 @@ class StorageService {
   ///   </li>
   /// </ul>
   /// </p>
-  Directory filterChildDir(final Directory parent, final Filter child) =>
-      Directory('${parent.path}/children/${child.uuid}');
+  Directory filterChildDir(final Directory parent, final int index) =>
+      Directory('${parent.path}/children/$index');
 
   /// Geht sicher, dass der Ordner existiert.
   Future<Directory> ensureDirExists(final Directory dir) async {
@@ -204,7 +204,7 @@ class StorageService {
         final Filter child = filterList[i] as Filter;
         final Map<String, dynamic> childAsJSON = filterListAsJSON[i];
         final Directory childDir =
-            await ensureDirExists(filterChildDir(filterDir, child));
+            await ensureDirExists(filterChildDir(filterDir, i));
         await _saveFilterRecursively(childDir, child, childAsJSON);
       }
       filterAsJSON.remove('filterList');
@@ -231,7 +231,6 @@ class StorageService {
   Future<List<IFilter>> loadAllFilters() async {
     _docsDir ??= await getApplicationDocumentsDirectory();
     Directory dir = await ensureDirExists(userFiltersDir);
-    final entities = dir.listSync(recursive: true);
     List<IFilter> filters = [];
     final filterDirs = dir.listSync().whereType<Directory>();
     for (final Directory filterDir in filterDirs) {
@@ -303,9 +302,18 @@ class StorageService {
       return filterAsJSON;
     }
 
-    final childDirs = childrenDir.listSync().whereType<Directory>();
+    final childDirs = childrenDir.listSync().whereType<Directory>().toList();
+    print('childDirs. $childDirs');
 
     List<Map<String, dynamic>> childrenAsJSON = <Map<String, dynamic>>[];
+    childDirs.sort((final dir1, final dir2) {
+      int? dir1Index = int.tryParse(basename(dir1.path));
+      int? dir2Index = int.tryParse(basename(dir2.path));
+      if (dir1Index == null || dir2Index == null) {
+        return 0;
+      }
+      return dir1Index.compareTo(dir2Index);
+    });
     for (final Directory childDir in childDirs) {
       final Map<String, dynamic>? childAsJSON =
           await _loadFilterAsJSONRecursively(childDir);
