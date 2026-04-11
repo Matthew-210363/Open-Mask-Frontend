@@ -112,8 +112,8 @@ abstract class ImageFilter extends Filter {
       {...super.toJSON(), 'filterImage': filterImage.toJSON()};
 
   @override
-  ImageFilter fork() {
-    ImageFilter fork = super.fork() as ImageFilter;
+  ImageFilter fork({final bool createdByUser = true}) {
+    ImageFilter fork = super.fork(createdByUser: createdByUser) as ImageFilter;
     fork.filterImage = filterImage.fork();
     fork.position = position;
     fork.filterSize = filterSize;

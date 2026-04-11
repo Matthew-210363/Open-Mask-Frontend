@@ -120,11 +120,11 @@ class FilterMeta {
       };
 
   /// Erstellt eine Kopie der Metadaten.
-  FilterMeta fork() {
+  FilterMeta fork({final bool createdByUser = true}) {
     return FilterMeta(
       name: _name,
       description: _description,
-      createdBy: AuthService.instance.user,
+      createdBy: createdByUser ? AuthService.instance.user : createdBy,
       createdAt: DateTime.now(),
       isPublic: _isPublic,
       icon: _icon,

@@ -117,7 +117,7 @@ class FilterStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Fügt den angegebenen [filter] zu den lokalen Filtern hinzu.
+  /// Fügt den angegebenen [filter] zu den [localFilters] hinzu.
   void addLocalFilter(final IFilter filter) {
     _localFilters.add(filter);
     notifyListeners();
@@ -132,13 +132,36 @@ class FilterStore extends ChangeNotifier {
     return success;
   }
 
-  /// Entfernt den angegebenen [filter] aus den [localFilters], falls dieser vorhanden ist.
+  /// Fügt den angegebenen [filter] zu den [communityFilters] hinzu.
+  void addCommunityFilter(final IFilter filter) {
+    _communityFilters.add(filter);
+    notifyListeners();
+  }
+
+  /// Entfernt den angegebenen [filter] aus den [communityFilters], falls dieser vorhanden ist.
   Future<bool> removeCommunityFilter(final IFilter filter) async {
     bool success = _communityFilters.remove(filter);
     success =
         success && await StorageService.instance.deleteFilter(filter as Filter);
     notifyListeners();
     return success;
+  }
+
+  /// Importiert den [filter] und speichert ihn. Falls dieser vom aktuellen Nutzer erstellt wurde,
+  /// wird dieser in den [localFilters] gespeichert. Falls nicht, wird er zu den [communityFilters]
+  /// hinzugefügt. Filter mit bereits existierender UUID werden geforkt.
+  Future<void> importFilter(final IFilter filter) async {
+    final Filter filterToAdd =
+        await StorageService.instance.filterExists(filter as Filter)
+            ? filter.fork(createdByUser: false)
+            : filter;
+
+    if (filter.meta.createdBy?.id == AuthService.instance.user?.id) {
+      addLocalFilter(filterToAdd);
+    } else {
+      addCommunityFilter(filterToAdd);
+    }
+    await StorageService.instance.saveFilter(filterToAdd);
   }
 
   /// Liefert alle eigenen [localFilters] zurück.

@@ -62,8 +62,8 @@ abstract class ColorFilter extends Filter {
   void dispose() {}
 
   @override
-  ColorFilter fork() {
-    ColorFilter fork = super.fork() as ColorFilter;
+  ColorFilter fork({final bool createdByUser = true}) {
+    ColorFilter fork = super.fork(createdByUser: createdByUser) as ColorFilter;
     fork.color = color;
     return fork;
   }

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_mask/data/services/snackbar_service.dart';
+import 'package:open_mask/data/services/storage_service.dart';
 import 'package:open_mask/filter/filter_store.dart';
+import 'package:open_mask/filter/i_filter.dart';
+import 'package:open_mask/filter/templates/filter.dart';
 import 'package:open_mask/ui/screens/filter_editor_screen.dart';
 import 'package:open_mask/ui/widgets/blue_text_button.dart';
 import 'package:open_mask/ui/widgets/filter_list.dart';
+import 'package:path/path.dart';
 
 /// Startseite der Filterwerkstatt.
 class FilterWorkshopScreen extends StatefulWidget {
@@ -22,6 +27,22 @@ class FilterWorkshopScreen extends StatefulWidget {
 
 /// [State] des [FilterWorkshopScreen].
 class _FilterWorkshopScreenState extends State<FilterWorkshopScreen> {
+  List<Filter> selected = [];
+
+  /// Wählt [filter] aus oder ab.
+  void onSelected(final Filter filter) {
+    if (!isSelected(filter)) {
+      selected.add(filter);
+    } else {
+      selected.remove(filter);
+    }
+  }
+
+  /// Gibt an, ob der [filter] ausgewählt ist.
+  bool isSelected(final Filter filter) {
+    return selected.contains(filter);
+  }
+
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
@@ -42,11 +63,31 @@ class _FilterWorkshopScreenState extends State<FilterWorkshopScreen> {
                 children: [
                   BlueTextButton(
                     'Importieren',
-                    onPressed: () {},
+                    onPressed: () async {
+                      IFilter? filter =
+                          await StorageService.instance.importFilter();
+                      if (filter != null) {
+                        await FilterStore.instance.importFilter(filter);
+                      }
+                    },
                   ),
                   BlueTextButton(
                     'Exportieren',
-                    onPressed: () {},
+                    onPressed: () async {
+                      List<String> paths = await StorageService.instance
+                          .exportFilterList(selected);
+                      if (paths.length == 1) {
+                        SnackBarService.showMessage(
+                            'Filter als ${basename(paths.first)} exportiert');
+                      } else if (paths.length > 1) {
+                        final dirName = paths.first
+                            .replaceAll('primary:', '')
+                            .split('/')[paths.length - 2];
+                        SnackBarService.showMessage(
+                            '${paths.length} Filter in $dirName exportiert');
+                      }
+                      selected.clear();
+                    },
                   ),
                 ],
               ),
@@ -79,19 +120,29 @@ class _FilterWorkshopScreenState extends State<FilterWorkshopScreen> {
                       FilterStore.instance.currentlyEditedFilter = filter;
                       _openEditor(context);
                     },
-                    onDelete: FilterStore.instance.removeLocalFilter,
+                    onDelete: (final filter) {
+                      FilterStore.instance.removeLocalFilter(filter);
+                      selected.remove(filter);
+                    },
                     onFork: (final filter) {
                       FilterStore.instance.addLocalFilter(filter.fork());
                     },
                     changeNotifier: FilterStore.instance,
+                    onSelected: onSelected,
+                    isSelected: isSelected,
                   ),
                   FilterList(
                     getFilterList: () => FilterStore.instance.communityFilters,
-                    onDelete: FilterStore.instance.removeCommunityFilter,
+                    onDelete: (final filter) {
+                      FilterStore.instance.removeCommunityFilter(filter);
+                      selected.remove(filter);
+                    },
                     onFork: (final filter) {
                       FilterStore.instance.addLocalFilter(filter.fork());
                     },
                     changeNotifier: FilterStore.instance,
+                    onSelected: onSelected,
+                    isSelected: isSelected,
                   ),
                 ],
               ),

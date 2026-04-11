@@ -39,8 +39,9 @@ abstract class Filter implements IFilter {
   final int? parentId;
 
   @override
-  Filter fork() {
-    return FilterFactory.createType(type, meta.fork(),
+  Filter fork({final bool createdByUser = true}) {
+    return FilterFactory.createType(
+        type, meta.fork(createdByUser: createdByUser),
         id: id, config: config?.fork(), parentId: id) as Filter;
   }
 

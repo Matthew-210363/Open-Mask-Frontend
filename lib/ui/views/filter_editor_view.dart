@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:open_mask/data/services/storage_service.dart';
 import 'package:open_mask/filter/filter_store.dart';
+import 'package:open_mask/filter/i_filter.dart';
 import 'package:open_mask/filter/templates/color_filter.dart'
     as om_color_filter;
 import 'package:open_mask/filter/templates/composite_filter.dart';
@@ -342,7 +344,13 @@ class FilterEditorView extends StatelessWidget {
                   flex: 3,
                   child: BlueTextButton(
                     'Importieren',
-                    onPressed: null,
+                    onPressed: () async {
+                      final IFilter? filter =
+                          await StorageService.instance.importFilter();
+                      if (filter != null) {
+                        FilterStore.instance.addFilterToEdit(filter.fork());
+                      }
+                    },
                     stretch: true,
                   ),
                 ),
@@ -377,7 +385,7 @@ class FilterEditorView extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: BlueTextButton(
-                    (vm.saved) ? 'Clear' : 'Speichern',
+                    (vm.saved) ? 'Exportieren' : 'Speichern',
                     onPressed: vm.currentFilter == null ? null : vm.save,
                     stretch: true,
                   ),

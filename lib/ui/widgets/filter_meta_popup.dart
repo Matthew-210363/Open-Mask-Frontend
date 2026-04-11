@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_mask/filter/filter_store.dart';
+import 'package:open_mask/data/services/auth_service.dart';
 import 'package:open_mask/filter/templates/filter.dart';
 import 'package:open_mask/ui/widgets/editable_text_tile.dart';
 import 'package:open_mask/ui/widgets/filter_icon.dart';
@@ -28,7 +28,7 @@ class _FilterMetaPopupState extends State<FilterMetaPopup> {
   Widget build(final BuildContext context) {
     final theme = Theme.of(context);
     final bool isEditable =
-        !FilterStore.instance.getPredefinedFilters().contains(widget.filter);
+        widget.filter.meta.createdBy?.id == AuthService.instance.user?.id;
     return Dialog(
       backgroundColor: theme.colorScheme.surface.withAlpha(220),
       insetPadding: const EdgeInsets.all(20),

@@ -96,8 +96,9 @@ class CompositeFilter extends Filter {
   }
 
   @override
-  CompositeFilter fork() {
-    CompositeFilter fork = super.fork() as CompositeFilter;
+  CompositeFilter fork({final bool createdByUser = true}) {
+    CompositeFilter fork =
+        super.fork(createdByUser: createdByUser) as CompositeFilter;
     fork._filterList.addAll(_filterList.map((final filter) => filter.fork()));
     return fork;
   }
