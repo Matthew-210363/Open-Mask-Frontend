@@ -66,14 +66,17 @@ class _FilterIconState extends State<FilterIcon> {
         child: widget.isEditable && isTappedDown
             ? Center(
                 child: Stack(
+                  alignment: AlignmentGeometry.center,
                   children: [
-                    widget.filter.meta.iconAsWidget,
+                    FittedBox(child: widget.filter.meta.iconAsWidget),
                     Container(
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.grey.withAlpha(200))),
-                    const Icon(Icons.image_search_rounded,
-                        color: Colors.indigo),
+                    const FittedBox(
+                      child: Icon(Icons.image_search_rounded,
+                          color: Colors.indigo),
+                    ),
                   ],
                 ),
               )

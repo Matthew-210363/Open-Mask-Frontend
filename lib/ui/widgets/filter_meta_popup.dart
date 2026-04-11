@@ -50,7 +50,7 @@ class _FilterMetaPopupState extends State<FilterMetaPopup> {
                     filter: widget.filter,
                     isSelected: false,
                     size: const Size(40, 40),
-                    isEditable: true,
+                    isEditable: isEditable,
                   ),
                   Expanded(
                       child: Text(
