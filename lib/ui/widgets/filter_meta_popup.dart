@@ -112,11 +112,19 @@ class _FilterMetaPopupState extends State<FilterMetaPopup> {
                         child: Text(
                             '${widget.filter.meta.updatedAt ?? 'Automatisch erstellt'}'),
                       ),
-                      const FormHeaderText('Parent-UUID'),
+                      const FormHeaderText('UUID'),
                       Padding(
                         padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
                         child: Text(widget.filter.uuid),
                       ),
+                      if (widget.filter.parentUuid != null) ...[
+                        const FormHeaderText('Parent-UUID'),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                          child: Text(widget.filter.parentUuid ?? ''),
+                        )
+                      ],
                       const FormHeaderText('Veröffentlichungsstatus'),
                       TextWithCheckbox(
                           checkedText: 'Öffentlich',
