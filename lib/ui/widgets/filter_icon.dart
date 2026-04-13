@@ -42,6 +42,14 @@ class _FilterIconState extends State<FilterIcon> {
   bool isTappedDown = false;
 
   @override
+  void initState() {
+    super.initState();
+    widget.filter.meta.icon?.loadRawData().then((final value) {
+      if (value == true) setState(() {});
+    });
+  }
+
+  @override
   Widget build(final BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode =

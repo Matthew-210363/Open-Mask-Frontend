@@ -27,13 +27,13 @@ abstract class ImageFilter extends Filter {
     if (filterImage != null) {
       this.filterImage = filterImage;
     }
+    meta.iconAsWidget = Image.asset(defaultAssetPath);
     if (config.offset == FilterConfig.defaultOffset && defaultOffset != null) {
       config.offset = defaultOffset!;
     }
     if (config.scale == FilterConfig.defaultScale && defaultScale != null) {
       config.scale = defaultScale!;
     }
-    meta.iconAsWidget = Image.asset(defaultAssetPath);
   }
 
   /// Factory-Methode zur JSON‑Deserialisierung.
@@ -64,8 +64,17 @@ abstract class ImageFilter extends Filter {
   }
 
   /// Bild mit Metadaten.
-  late FilterImage filterImage =
+  late FilterImage _filterImage =
       FilterImage(filename: defaultImageFilename, assetPath: defaultAssetPath);
+
+  /// Bild mit Metadaten.
+  FilterImage get filterImage => _filterImage;
+
+  /// Bild mit Metadaten.
+  set filterImage(final FilterImage value) {
+    _filterImage = value;
+    meta.icon ??= filterImage.fork();
+  }
 
   /// Konfiguration aller ImageFilter, die vorhanden sein muss und nicht [null] sein darf.
   final FilterConfig _config;
